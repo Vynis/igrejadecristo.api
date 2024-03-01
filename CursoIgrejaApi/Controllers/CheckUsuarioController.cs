@@ -18,13 +18,18 @@ namespace CursoIgreja.Api.Controllers
         private readonly IProcessoInscricaoRepository _processoInscricaoRepository;
         private readonly IInscricaoUsuarioRepository _inscricaoUsuarioRepository;
         private readonly IPresencaUsuarioRepository _presencaUsuarioRepository;
+        private readonly IParametroSistemaRepository _parametroSistemaRepository;
 
-        public CheckUsuarioController(IGeolocalizacaoUsuarioRepository geolocalizacaoUsuarioRepository, IProcessoInscricaoRepository processoInscricaoRepository, IInscricaoUsuarioRepository inscricaoUsuarioRepository, IPresencaUsuarioRepository presencaUsuarioRepository)
+        private bool validarLocalUsuario = false;
+
+        public CheckUsuarioController(IGeolocalizacaoUsuarioRepository geolocalizacaoUsuarioRepository, IProcessoInscricaoRepository processoInscricaoRepository, IInscricaoUsuarioRepository inscricaoUsuarioRepository, IPresencaUsuarioRepository presencaUsuarioRepository,IParametroSistemaRepository parametroSistemaRepository)
         {
             _geolocalizacaoUsuarioRepository = geolocalizacaoUsuarioRepository;
             _processoInscricaoRepository = processoInscricaoRepository;
             _inscricaoUsuarioRepository = inscricaoUsuarioRepository;
             _presencaUsuarioRepository = presencaUsuarioRepository;
+            _parametroSistemaRepository = parametroSistemaRepository;
+            validarLocalUsuario = _parametroSistemaRepository.Buscar(x => x.Status.Equals("A") && x.Titulo.Equals("ValidarLocalUsuario")).Result.FirstOrDefault().Valor == "S" ? true : false;
         }
 
         [HttpPost("cadastrar-localizacao-usuario")]
@@ -105,10 +110,14 @@ namespace CursoIgreja.Api.Controllers
         {
             try
             {
-                var estaLocalCheck = await _geolocalizacaoUsuarioRepository.VerificaUsuarioEstaNoRaio(Convert.ToInt32(User.Identity.Name));
+                if (validarLocalUsuario)
+                {
+                    var estaLocalCheck = await _geolocalizacaoUsuarioRepository.VerificaUsuarioEstaNoRaio(Convert.ToInt32(User.Identity.Name));
 
-                if (!estaLocalCheck)
-                    return Response("Aluno não está proximo ao local da aula", false);
+                    if (!estaLocalCheck)
+                        return Response("Aluno não está proximo ao local da aula", false);
+
+                }
 
                 var presencaoUsuario = new PresencaUsuario
                 {
