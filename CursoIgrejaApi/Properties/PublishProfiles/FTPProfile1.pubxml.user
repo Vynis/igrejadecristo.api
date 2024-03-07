@@ -8,7 +8,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <TimeStampOfAssociatedLegacyPublishXmlFile />
     <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAA3SskLq6RsUK1WrJ6YQzMKAAAAAACAAAAAAAQZgAAAAEAACAAAAAQMEJf5wiYrCD8Q7Hjgfs+XdUzbkQ/WUoMU1et34fbFgAAAAAOgAAAAAIAACAAAACZ1fwqHHxj5LRBNCJvOiWw/5b6LZFklE2HNWFNgR5XQyAAAADX3aFieSEuw4+TSvqxGbBMI8c9+xZqL0R6sYcuIA87TEAAAAC0Ww0pdZL65/1c8BZPJGezqSP3ZzoXbVqtF2d0iIfuN9RUPsnRlB/KC9KyEBbgmjqOFtjBE9sPhtW7D4ICwbGG</EncryptedPassword>
     <_PublishTargetUrl>ftp://ftp.igrejadecristobrasil.app.br/www/api</_PublishTargetUrl>
-    <History>True|2024-02-26T13:01:17.7669311Z;True|2024-02-26T09:56:19.1745742-03:00;True|2024-02-20T10:06:34.8942233-03:00;</History>
+    <History>True|2024-03-07T14:59:48.7285884Z;True|2024-02-26T10:01:17.7669311-03:00;True|2024-02-26T09:56:19.1745742-03:00;True|2024-02-20T10:06:34.8942233-03:00;</History>
   </PropertyGroup>
   <ItemGroup>
     <File Include="appsettings.Development.json">
@@ -27,19 +27,19 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>04/21/2023 09:07:00</publishTime>
     </File>
     <File Include="CursoIgreja.Api.deps.json">
-      <publishTime>02/26/2024 10:00:05</publishTime>
+      <publishTime>03/07/2024 11:58:29</publishTime>
     </File>
     <File Include="CursoIgreja.Api.dll">
-      <publishTime>02/26/2024 09:59:47</publishTime>
+      <publishTime>03/07/2024 11:51:18</publishTime>
     </File>
     <File Include="CursoIgreja.Api.exe">
-      <publishTime>02/26/2024 09:59:47</publishTime>
+      <publishTime>03/07/2024 11:51:19</publishTime>
     </File>
     <File Include="CursoIgreja.Api.pdb">
-      <publishTime>02/26/2024 09:59:47</publishTime>
+      <publishTime>03/07/2024 11:51:18</publishTime>
     </File>
     <File Include="CursoIgreja.Api.runtimeconfig.json">
-      <publishTime>02/20/2024 10:05:00</publishTime>
+      <publishTime>03/07/2024 11:51:21</publishTime>
     </File>
     <File Include="CursoIgreja.Domain.dll">
       <publishTime>02/20/2024 10:04:57</publishTime>
@@ -60,10 +60,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/20/2024 10:04:56</publishTime>
     </File>
     <File Include="CursoIgreja.Repository.dll">
-      <publishTime>02/26/2024 09:59:46</publishTime>
+      <publishTime>03/07/2024 11:51:11</publishTime>
     </File>
     <File Include="CursoIgreja.Repository.pdb">
-      <publishTime>02/26/2024 09:59:46</publishTime>
+      <publishTime>03/07/2024 11:51:11</publishTime>
     </File>
     <File Include="Enums.NET.dll">
       <publishTime>11/18/2022 19:40:50</publishTime>
@@ -74,8 +74,20 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="FiltrDinamico.Core.pdb">
       <publishTime>02/20/2024 10:04:56</publishTime>
     </File>
+    <File Include="Google.Protobuf.dll">
+      <publishTime>11/15/2023 08:29:56</publishTime>
+    </File>
     <File Include="ICSharpCode.SharpZipLib.dll">
       <publishTime>09/19/2021 06:20:24</publishTime>
+    </File>
+    <File Include="K4os.Compression.LZ4.dll">
+      <publishTime>01/06/2023 14:16:12</publishTime>
+    </File>
+    <File Include="K4os.Compression.LZ4.Streams.dll">
+      <publishTime>01/06/2023 14:16:12</publishTime>
+    </File>
+    <File Include="K4os.Hash.xxHash.dll">
+      <publishTime>11/08/2022 15:08:14</publishTime>
     </File>
     <File Include="MathNet.Numerics.dll">
       <publishTime>01/07/2021 12:59:16</publishTime>
@@ -90,7 +102,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>06/17/2020 19:07:58</publishTime>
     </File>
     <File Include="Microsoft.Bcl.AsyncInterfaces.dll">
-      <publishTime>04/14/2020 19:39:12</publishTime>
+      <publishTime>10/18/2022 13:14:58</publishTime>
     </File>
     <File Include="Microsoft.Bcl.HashCode.dll">
       <publishTime>11/15/2019 05:38:50</publishTime>
@@ -164,6 +176,9 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="Microsoft.Win32.SystemEvents.dll">
       <publishTime>10/22/2021 20:49:36</publishTime>
     </File>
+    <File Include="MySql.Data.dll">
+      <publishTime>12/08/2023 03:11:38</publishTime>
+    </File>
     <File Include="MySqlConnector.dll">
       <publishTime>08/20/2020 16:28:24</publishTime>
     </File>
@@ -208,6 +223,21 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     </File>
     <File Include="runtimes/win-arm64/native/sni.dll">
       <publishTime>07/12/2017 08:24:24</publishTime>
+    </File>
+    <File Include="runtimes/win-x64/native/comerr64.dll">
+      <publishTime>12/08/2023 03:05:06</publishTime>
+    </File>
+    <File Include="runtimes/win-x64/native/gssapi64.dll">
+      <publishTime>12/08/2023 03:05:06</publishTime>
+    </File>
+    <File Include="runtimes/win-x64/native/k5sprt64.dll">
+      <publishTime>12/08/2023 03:05:06</publishTime>
+    </File>
+    <File Include="runtimes/win-x64/native/krb5_64.dll">
+      <publishTime>12/08/2023 03:05:06</publishTime>
+    </File>
+    <File Include="runtimes/win-x64/native/krbcc64.dll">
+      <publishTime>12/08/2023 03:05:06</publishTime>
     </File>
     <File Include="runtimes/win-x64/native/sni.dll">
       <publishTime>07/12/2017 08:24:22</publishTime>
@@ -270,7 +300,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>07/20/2020 18:21:14</publishTime>
     </File>
     <File Include="System.Diagnostics.DiagnosticSource.dll">
-      <publishTime>04/14/2020 19:48:06</publishTime>
+      <publishTime>02/15/2023 21:44:28</publishTime>
     </File>
     <File Include="System.Drawing.Common.dll">
       <publishTime>10/22/2021 20:50:24</publishTime>
@@ -281,8 +311,11 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="System.IdentityModel.Tokens.Jwt.dll">
       <publishTime>06/24/2019 16:49:50</publishTime>
     </File>
+    <File Include="System.IO.Pipelines.dll">
+      <publishTime>04/13/2022 14:49:36</publishTime>
+    </File>
     <File Include="System.Runtime.CompilerServices.Unsafe.dll">
-      <publishTime>10/19/2020 15:47:52</publishTime>
+      <publishTime>10/22/2021 20:40:56</publishTime>
     </File>
     <File Include="System.Security.AccessControl.dll">
       <publishTime>10/22/2021 20:36:58</publishTime>
@@ -308,11 +341,20 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="System.Text.Encoding.CodePages.dll">
       <publishTime>10/19/2020 15:47:18</publishTime>
     </File>
+    <File Include="System.Text.Encodings.Web.dll">
+      <publishTime>10/18/2022 13:31:50</publishTime>
+    </File>
+    <File Include="System.Text.Json.dll">
+      <publishTime>11/18/2022 13:32:44</publishTime>
+    </File>
     <File Include="System.Windows.Extensions.dll">
       <publishTime>10/22/2021 20:50:26</publishTime>
     </File>
     <File Include="web.config">
-      <publishTime>02/26/2024 10:00:05</publishTime>
+      <publishTime>03/07/2024 11:58:29</publishTime>
+    </File>
+    <File Include="ZstdSharp.dll">
+      <publishTime>04/06/2023 09:25:30</publishTime>
     </File>
   </ItemGroup>
 </Project>
