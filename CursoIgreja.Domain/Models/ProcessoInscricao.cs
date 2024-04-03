@@ -53,5 +53,7 @@ namespace CursoIgreja.Domain.Models
         public List<InscricaoLiberarCurso> InscricaoLiberarCursos { get; set; }
         public List<PresencaUsuario> PresencaUsuarios { get; set; }
 
+        public string Descricao { get; set; }
+
     }
 }
