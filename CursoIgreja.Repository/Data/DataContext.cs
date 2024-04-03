@@ -46,6 +46,8 @@ namespace CursoIgreja.Repository.Data
         public DbSet<GeolocalizacaoUsuario> GeolocalizacaoUsuarios { get; set; }
         public DbSet<PresencaUsuario> PresencaUsuarios { get; set; }
         public DbSet<VwRelatorioInscricoes> ListaVwRelatorioInscricoes { get; set; }
+        public DbSet<VwPresencaUsuario> ListaVwPresencaUsuario { get; set; }
+        public DbSet<CalendarioAulas> ListaCalendarioAulas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
