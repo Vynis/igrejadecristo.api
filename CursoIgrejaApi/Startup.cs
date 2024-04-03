@@ -202,6 +202,8 @@ namespace CursoIgrejaApi
             services.AddScoped<IPresencaUsuarioRepository, PresencaUsuarioRepository>();
             services.AddScoped<IVwRelatorioInscricoes, VwRelatorioInscricoesRepository>();
             services.AddScoped<IRelatorioGeraisRepository, RelatorioGeraisRepository>();
+            services.AddScoped<IVwPresencaUsuarioRepository, VwPresencaUsuarioRepository>();
+            services.AddScoped<ICalendarioAulasRepository, CalendarioAulasRepository>();
 
         }
     }

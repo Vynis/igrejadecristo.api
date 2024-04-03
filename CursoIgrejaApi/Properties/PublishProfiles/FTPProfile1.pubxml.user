@@ -8,7 +8,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <TimeStampOfAssociatedLegacyPublishXmlFile />
     <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAA3SskLq6RsUK1WrJ6YQzMKAAAAAACAAAAAAAQZgAAAAEAACAAAAAQMEJf5wiYrCD8Q7Hjgfs+XdUzbkQ/WUoMU1et34fbFgAAAAAOgAAAAAIAACAAAACZ1fwqHHxj5LRBNCJvOiWw/5b6LZFklE2HNWFNgR5XQyAAAADX3aFieSEuw4+TSvqxGbBMI8c9+xZqL0R6sYcuIA87TEAAAAC0Ww0pdZL65/1c8BZPJGezqSP3ZzoXbVqtF2d0iIfuN9RUPsnRlB/KC9KyEBbgmjqOFtjBE9sPhtW7D4ICwbGG</EncryptedPassword>
     <_PublishTargetUrl>ftp://ftp.igrejadecristobrasil.app.br/www/api</_PublishTargetUrl>
-    <History>True|2024-03-07T14:59:48.7285884Z;True|2024-02-26T10:01:17.7669311-03:00;True|2024-02-26T09:56:19.1745742-03:00;True|2024-02-20T10:06:34.8942233-03:00;</History>
+    <History>True|2024-04-03T13:48:19.2332524Z;True|2024-03-07T11:59:48.7285884-03:00;True|2024-02-26T10:01:17.7669311-03:00;True|2024-02-26T09:56:19.1745742-03:00;True|2024-02-20T10:06:34.8942233-03:00;</History>
   </PropertyGroup>
   <ItemGroup>
     <File Include="appsettings.Development.json">
@@ -27,25 +27,25 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>04/21/2023 09:07:00</publishTime>
     </File>
     <File Include="CursoIgreja.Api.deps.json">
-      <publishTime>03/07/2024 11:58:29</publishTime>
+      <publishTime>04/03/2024 10:46:50</publishTime>
     </File>
     <File Include="CursoIgreja.Api.dll">
-      <publishTime>03/07/2024 11:51:18</publishTime>
+      <publishTime>04/03/2024 10:46:24</publishTime>
     </File>
     <File Include="CursoIgreja.Api.exe">
-      <publishTime>03/07/2024 11:51:19</publishTime>
+      <publishTime>04/03/2024 10:46:24</publishTime>
     </File>
     <File Include="CursoIgreja.Api.pdb">
-      <publishTime>03/07/2024 11:51:18</publishTime>
+      <publishTime>04/03/2024 10:46:24</publishTime>
     </File>
     <File Include="CursoIgreja.Api.runtimeconfig.json">
       <publishTime>03/07/2024 11:51:21</publishTime>
     </File>
     <File Include="CursoIgreja.Domain.dll">
-      <publishTime>02/20/2024 10:04:57</publishTime>
+      <publishTime>04/03/2024 10:46:21</publishTime>
     </File>
     <File Include="CursoIgreja.Domain.pdb">
-      <publishTime>02/20/2024 10:04:57</publishTime>
+      <publishTime>04/03/2024 10:46:21</publishTime>
     </File>
     <File Include="CursoIgreja.PagSeguro.dll">
       <publishTime>02/20/2024 10:04:56</publishTime>
@@ -60,10 +60,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/20/2024 10:04:56</publishTime>
     </File>
     <File Include="CursoIgreja.Repository.dll">
-      <publishTime>03/07/2024 11:51:11</publishTime>
+      <publishTime>04/03/2024 10:46:22</publishTime>
     </File>
     <File Include="CursoIgreja.Repository.pdb">
-      <publishTime>03/07/2024 11:51:11</publishTime>
+      <publishTime>04/03/2024 10:46:22</publishTime>
     </File>
     <File Include="Enums.NET.dll">
       <publishTime>11/18/2022 19:40:50</publishTime>
@@ -351,7 +351,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>10/22/2021 20:50:26</publishTime>
     </File>
     <File Include="web.config">
-      <publishTime>03/07/2024 11:58:29</publishTime>
+      <publishTime>04/03/2024 10:46:51</publishTime>
     </File>
     <File Include="ZstdSharp.dll">
       <publishTime>04/06/2023 09:25:30</publishTime>
