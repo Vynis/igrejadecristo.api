@@ -1,7 +1,9 @@
 ﻿using NPOI.XSSF.UserModel;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 
 namespace CursoIgreja.Api.Helpers
 {
@@ -15,65 +17,136 @@ namespace CursoIgreja.Api.Helpers
 
             var properties = typeof(T).GetProperties();
 
-            //header
-            var font = workbook.CreateFont();
-            font.IsBold = true;
-            var style = workbook.CreateCellStyle();
-            style.SetFont(font);
-
-            var colIndex = 0;
-            foreach (var property in properties)
+            if (properties.Length == 0)
             {
-                var cell = rowHeader.CreateCell(colIndex);
-                cell.SetCellValue(property.Name);
-                cell.CellStyle = style;
-                colIndex++;
-            }
-            //end header
+                //header
+                var font = workbook.CreateFont();
+                font.IsBold = true;
+                var style = workbook.CreateCellStyle();
+                style.SetFont(font);
 
 
-            //content
-            var rowNum = 1;
-            foreach (var item in source)
-            {
-                var rowContent = sheet.CreateRow(rowNum);
-
-                var colContentIndex = 0;
-                foreach (var property in properties)
+                var colIndex = 0;
+                foreach (var key in ((IDictionary<string, object>)source[0]).Keys)
                 {
-                    var cellContent = rowContent.CreateCell(colContentIndex);
-                    var value = property.GetValue(item, null);
-
-                    if (value == null)
-                    {
-                        cellContent.SetCellValue("");
-                    }
-                    else if (property.PropertyType == typeof(string))
-                    {
-                        cellContent.SetCellValue(value.ToString());
-                    }
-                    else if (property.PropertyType == typeof(int) || property.PropertyType == typeof(int?))
-                    {
-                        cellContent.SetCellValue(Convert.ToInt32(value));
-                    }
-                    else if (property.PropertyType == typeof(decimal) || property.PropertyType == typeof(decimal?))
-                    {
-                        cellContent.SetCellValue(Convert.ToDouble(value));
-                    }
-                    else if (property.PropertyType == typeof(DateTime) || property.PropertyType == typeof(DateTime?))
-                    {
-                        var dateValue = (DateTime)value;
-                        cellContent.SetCellValue(dateValue.ToString("yyyy-MM-dd"));
-                    }
-                    else cellContent.SetCellValue(value.ToString());
-
-                    colContentIndex++;
+                    var cell = rowHeader.CreateCell(colIndex);
+                    cell.SetCellValue(key);
+                    cell.CellStyle = style;
+                    colIndex++;
                 }
 
-                rowNum++;
-            }
 
-            //end content
+                //content
+                var rowNum = 1;
+                foreach (var item in source)
+                {
+                    var rowContent = sheet.CreateRow(rowNum);
+
+                    var listValues = (((IDictionary<string, object>)item).Values.ToArray());
+
+                    var colContentIndex = 0;
+                    foreach (var d in listValues)
+                    {
+                        var cellContent = rowContent.CreateCell(colContentIndex);
+                        cellContent.SetCellValue(d.ToString());
+
+                        //if (value == null)
+                        //{
+                        //    cellContent.SetCellValue("")
+                        //}
+                        //else if (property.PropertyType == typeof(string))
+                        //{
+                        //    cellContent.SetCellValue(value.ToString());
+                        //}
+                        //else if (property.PropertyType == typeof(int) || property.PropertyType == typeof(int?))
+                        //{
+                        //    cellContent.SetCellValue(Convert.ToInt32(value));
+                        //}
+                        //else if (property.PropertyType == typeof(decimal) || property.PropertyType == typeof(decimal?))
+                        //{
+                        //    cellContent.SetCellValue(Convert.ToDouble(value));
+                        //}
+                        //else if (property.PropertyType == typeof(DateTime) || property.PropertyType == typeof(DateTime?))
+                        //{
+                        //    var dateValue = (DateTime)value;
+                        //    cellContent.SetCellValue(dateValue.ToString("yyyy-MM-dd"));
+                        //}
+                        //else cellContent.SetCellValue(value.ToString());
+
+                        colContentIndex++;
+                    }
+
+                    rowNum++;
+                }
+
+                //end content
+
+
+            }
+            else
+            {
+                
+
+                //header
+                var font = workbook.CreateFont();
+                font.IsBold = true;
+                var style = workbook.CreateCellStyle();
+                style.SetFont(font);
+
+                var colIndex = 0;
+                foreach (var property in properties)
+                {
+                    var cell = rowHeader.CreateCell(colIndex);
+                    cell.SetCellValue(property.Name);
+                    cell.CellStyle = style;
+                    colIndex++;
+                }
+                //end header
+
+
+                //content
+                var rowNum = 1;
+                foreach (var item in source)
+                {
+                    var rowContent = sheet.CreateRow(rowNum);
+
+                    var colContentIndex = 0;
+                    foreach (var property in properties)
+                    {
+                        var cellContent = rowContent.CreateCell(colContentIndex);
+                        var value = property.GetValue(item, null);
+
+                        if (value == null)
+                        {
+                            cellContent.SetCellValue("");
+                        }
+                        else if (property.PropertyType == typeof(string))
+                        {
+                            cellContent.SetCellValue(value.ToString());
+                        }
+                        else if (property.PropertyType == typeof(int) || property.PropertyType == typeof(int?))
+                        {
+                            cellContent.SetCellValue(Convert.ToInt32(value));
+                        }
+                        else if (property.PropertyType == typeof(decimal) || property.PropertyType == typeof(decimal?))
+                        {
+                            cellContent.SetCellValue(Convert.ToDouble(value));
+                        }
+                        else if (property.PropertyType == typeof(DateTime) || property.PropertyType == typeof(DateTime?))
+                        {
+                            var dateValue = (DateTime)value;
+                            cellContent.SetCellValue(dateValue.ToString("yyyy-MM-dd"));
+                        }
+                        else cellContent.SetCellValue(value.ToString());
+
+                        colContentIndex++;
+                    }
+
+                    rowNum++;
+                }
+
+                //end content
+            }
 
 
             var stream = new MemoryStream();

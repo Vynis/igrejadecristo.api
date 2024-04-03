@@ -26,6 +26,7 @@ namespace CursoIgreja.Api.Controllers
             _inscricaoUsuarioRepository = inscricaoUsuarioRepository;
         }
 
+
         [HttpGet("cursos-inscricoes-abertas")]
         [AllowAnonymous]
         public async Task<IActionResult> CursosInscricoesAbertas()
@@ -79,6 +80,22 @@ namespace CursoIgreja.Api.Controllers
                 }
 
                 return Response(listaNova);
+
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpGet("busca-inscricoes-ativos")]
+        public async Task<IActionResult> BuscaProcessoInscricaoAtivos()
+        {
+            try
+            {
+                var listaBd = await _processoInscricaoRepository.Buscar(x => x.Status.Equals("A"));
+
+                return Response(listaBd.OrderByDescending(x => x.Ano).ThenByDescending(x => x.Ciclo));
 
             }
             catch (Exception ex)

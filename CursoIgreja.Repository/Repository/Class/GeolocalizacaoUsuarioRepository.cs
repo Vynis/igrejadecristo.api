@@ -5,6 +5,7 @@ using FiltrDinamico.Core;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -32,12 +33,13 @@ namespace CursoIgreja.Repository.Repository.Class
 
         public async Task<bool> VerificaUsuarioEstaNoRaio(int UsuarioId)
         {
-            var listaGeolocalizacaoUsuario = await _dataContext.GeolocalizacaoUsuarios.Where(x => x.UsuarioId == UsuarioId).AsNoTracking().ToListAsync();
+            CultureInfo usCulture = new CultureInfo("en-US");
+            var listaGeolocalizacaoUsuario = await _dataContext.GeolocalizacaoUsuarios.Where(x => x.UsuarioId == UsuarioId && x.DataRegistro.Date == DateTime.Now.Date  ).AsNoTracking().ToListAsync();
 
             var latitudePadrao = (await _dataContext.ParametroSistema.Where(x => x.Titulo.Equals("LatitudeIgreja")).AsNoTracking().ToListAsync()).FirstOrDefault();
             var longitudePadrao = (await _dataContext.ParametroSistema.Where(x => x.Titulo.Equals("LongitudeIgreja")).AsNoTracking().ToListAsync()).FirstOrDefault();
 
-            return CalculaDistancia(listaGeolocalizacaoUsuario, Convert.ToDouble(latitudePadrao.Valor), Convert.ToDouble(longitudePadrao.Valor));
+            return CalculaDistancia(listaGeolocalizacaoUsuario, Convert.ToDouble(latitudePadrao.Valor, usCulture), Convert.ToDouble(longitudePadrao.Valor, usCulture));
 
         }
 
@@ -62,7 +64,7 @@ namespace CursoIgreja.Repository.Repository.Class
                                                 Math.Sin(ConvertToRadians(latitudePadrao)) *
                                                 Math.Sin(ConvertToRadians((double)ultimaLocalizacaoUsuario.Latitude)) );
 
-            return distancia <= 2 ? true : false;
+            return distancia <= 1 ? true : false;
 
         }
 
