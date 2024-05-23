@@ -27,7 +27,7 @@ namespace CursoIgreja.Api.Controllers
         {
             try
             {
-                var response = await _calendarioAulasRepository.Buscar(x => x.DataAula.Date <= DateTime.Now.Date);
+                var response = await _calendarioAulasRepository.Buscar(x => x.DataAula.Date <= DateTime.Now.Date && x.Recesso.Equals("N"));
 
                 var listaGroup = response.GroupBy(x => x.DataAula.Date).Select(x => x.First()).ToList();
 
