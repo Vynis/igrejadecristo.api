@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CursoIgreja.Api.Dtos;
@@ -505,6 +506,80 @@ namespace CursoIgreja.Api.Controllers
             }
         }
 
+        [HttpGet("verifica_notificacoes")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerificaNotificacoes()
+        {
+            try
+            {
+                var buscaIncricoesAguardandoPagamento = await _inscricaoUsuarioRepository.Buscar(x => x.Status.Equals("AG"));
+
+                var listaIdsInscricaoUsuario = string.Join(",", buscaIncricoesAguardandoPagamento.Select(x => x.Id.ToString()));
+
+                var logNotificacoes = await _logNotificacoesRepository.BuscarNotificaoEspecifica(listaIdsInscricaoUsuario);
+
+
+                var apiPagSeguro = new PagSeguroCheckoutApi();
+                var dadosConfigPagamento = await _meioPagamentoRepository.Buscar(x => x.Status.Equals("A"));
+                var tokenPagSeguro = dadosConfigPagamento.FirstOrDefault().Token;
+
+                var listaOrders = new List<string>();
+
+                foreach (var log in logNotificacoes) {
+
+                    string urlCheckout = $"{urlApiPagueSeguro}/checkouts/{log.Id}";
+
+                    var retorno = apiPagSeguro.vericaCheckou(urlCheckout, tokenPagSeguro);
+
+                    if (retorno.Orders != null)
+                    {
+
+                        string urlOrder = $"{urlApiPagueSeguro}/orders/{retorno.Orders[0].Id}";
+
+                        var retornoOrder = apiPagSeguro.vericaOrder(urlOrder, tokenPagSeguro);
+
+                        if (retornoOrder.Charges != null)
+                            if (retornoOrder.Charges[0].Payment_Response.Code == "20000")
+                            {
+
+                                var dadosInscricao = await _inscricaoUsuarioRepository.Buscar(x => x.Id.Equals(Convert.ToInt32(retornoOrder.Reference_Id)));
+                                var buscaDadosInscricao = dadosInscricao.FirstOrDefault();
+
+                                //Atualiza o status da isncricao
+                                if (!buscaDadosInscricao.Status.Equals("AG"))
+                                    continue;
+
+
+                                buscaDadosInscricao.Status = "CO";
+                                buscaDadosInscricao.DataConfirmacao = DateTime.Now;
+                                buscaDadosInscricao.ProcessoInscricao = null;
+                                buscaDadosInscricao.TransacaoInscricoes = null;
+                                buscaDadosInscricao.Usuario = null;
+
+                                buscaDadosInscricao.MeioPagamento = 0;
+                                buscaDadosInscricao.MeioPagamentoDesc = DescricaoTipoPagamento(0);
+                                buscaDadosInscricao.ValorBruto = 0;
+                                buscaDadosInscricao.ValorLiquido = 0;
+                                buscaDadosInscricao.QtdParcelas = 0;
+
+                                await _inscricaoUsuarioRepository.Atualizar(buscaDadosInscricao);
+
+                                listaOrders.Add(log.Id.ToString());
+
+                            }
+
+                        
+                    }
+                }
+
+                return Response(listaOrders);
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }   
+
         [HttpPost("notificacoes_2")]
         [AllowAnonymous]
         [Consumes("application/x-www-form-urlencoded")]
@@ -626,7 +701,7 @@ namespace CursoIgreja.Api.Controllers
             try
             {
 
-                return Response("Não autorizado!");
+                //return Response("Não autorizado!");
 
                 var response = await _logNotificacoesRepository.Buscar(x => x.Data >= dateIni && x.Data <= dateFim);
 
@@ -697,7 +772,7 @@ namespace CursoIgreja.Api.Controllers
                 case 11:
                     return "PIX";
                 default:
-                    return "";
+                    return "Pagamento Reprocessado";
             }
         }
 

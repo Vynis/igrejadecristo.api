@@ -39,7 +39,54 @@ namespace CursoIgreja.PagSeguroApi
                 throw;
             }
 
-            
+
+        }
+
+        public PagSeguroRetornoCheckoutModel.Checkout vericaCheckou(string urlApiPagueSeguro, string token)
+        {
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, urlApiPagueSeguro);
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+                    var response = httpClient.SendAsync(request).Result;
+                    response.EnsureSuccessStatusCode();
+                    var jsonResult = response.Content.ReadAsStringAsync().Result;
+                    var retorno = JsonConvert.DeserializeObject<PagSeguroRetornoCheckoutModel.Checkout>(jsonResult);
+                    return retorno;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+
+        }
+
+        public PagSeguroRetornoOrderModel.Order vericaOrder(string urlApiPagueSeguro, string token)
+        {
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, urlApiPagueSeguro);
+                using (HttpClient httpClient = new HttpClient())
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+                    var response = httpClient.SendAsync(request).Result;
+                    response.EnsureSuccessStatusCode();
+                    var jsonResult = response.Content.ReadAsStringAsync().Result;
+                    var retorno = JsonConvert.DeserializeObject<PagSeguroRetornoOrderModel.Order>(jsonResult);
+                    return retorno;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+
         }
 
     }
