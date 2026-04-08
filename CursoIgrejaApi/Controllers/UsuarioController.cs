@@ -16,12 +16,43 @@ namespace CursoIgreja.Api.Controllers
     public class UsuarioController : ControllerBase
     {
         private readonly IUsuariosRepository _usuarioRepository;
+        private readonly IInscricaoUsuarioRepository _inscricaoUsuarioRepository;
         private readonly IMapper _mapper;
 
-        public UsuarioController(IUsuariosRepository usuariosRepository, IMapper mapper)
+        public UsuarioController(IUsuariosRepository usuariosRepository, IInscricaoUsuarioRepository inscricaoUsuarioRepository, IMapper mapper)
         {
             _usuarioRepository = usuariosRepository;
+            _inscricaoUsuarioRepository = inscricaoUsuarioRepository;
             _mapper = mapper;
+        }
+
+        [HttpGet("buscar-todos")]
+        public async Task<IActionResult> BuscarTodos()
+        {
+            try
+            {
+                return Response(await _usuarioRepository.ObterTodos());
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpPost("busca-com-filtro")]
+        public async Task<IActionResult> BuscarComFiltro([FromBody] PaginationFilter filtro)
+        {
+            try
+            {
+                if (filtro.Filtro.Count() == 0)
+                    return Response(await _usuarioRepository.ObterTodos());
+
+                return Response(await _usuarioRepository.BuscaFiltroDinamico(filtro));
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
         }
 
         [HttpGet("busca-por-id/{id}")]
@@ -87,6 +118,62 @@ namespace CursoIgreja.Api.Controllers
                     return Response("Erro ao atualizar.", false);
 
                 return Response("Atualização realizada com sucesso!");
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpPut("resetar-senha/{id}")]
+        public async Task<IActionResult> ResetarSenha(int id)
+        {
+            try
+            {
+                var valida = await _usuarioRepository.ObterPorId(id);
+
+                if (valida == null)
+                    return Response("Id não enconrado", false);
+
+                valida.Senha = SenhaHashService.CalculateMD5Hash("123456");
+
+                var response = await _usuarioRepository.Atualizar(valida);
+
+                if (!response)
+                    return Response("Erro ao resetar senha.", false);
+
+                return Response("Senha resetada com sucesso!");
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpGet("buscar-processos-inscricao/{idUsuario}")]
+        public async Task<IActionResult> BuscarProcessosInscricao(int idUsuario)
+        {
+            try
+            {
+                var inscricoes = await _inscricaoUsuarioRepository.Buscar(x => x.UsuarioId == idUsuario);
+
+                var retorno = inscricoes
+                    .Select(x => new
+                    {
+                        x.Id,
+                        x.ProcessoInscricaoId,
+                        Curso = x.ProcessoInscricao?.Curso?.Titulo,
+                        x.ProcessoInscricao?.Ciclo,
+                        x.ProcessoInscricao?.Ano,
+                        x.Status,
+                        x.DataInscricao,
+                        x.DataConfirmacao,
+                        Valor = x.ProcessoInscricao?.Valor
+                    })
+                    .OrderByDescending(x => x.DataInscricao)
+                    .ToList();
+
+                return Response(retorno);
             }
             catch (Exception ex)
             {

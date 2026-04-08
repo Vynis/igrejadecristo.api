@@ -55,5 +55,14 @@ namespace CursoIgreja.Domain.Models
 
         public string Descricao { get; set; }
 
+        [NotMapped]
+        public int QtdInscricoesTotal { get; set; }
+
+        [NotMapped]
+        public int QtdInscricoesConfirmadas { get; set; }
+
+        [NotMapped]
+        public int QtdInscricoesCanceladas { get; set; }
+
     }
 }
