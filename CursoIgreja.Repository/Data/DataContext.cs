@@ -48,6 +48,11 @@ namespace CursoIgreja.Repository.Data
         public DbSet<VwRelatorioInscricoes> ListaVwRelatorioInscricoes { get; set; }
         public DbSet<VwPresencaUsuario> ListaVwPresencaUsuario { get; set; }
         public DbSet<CalendarioAulas> ListaCalendarioAulas { get; set; }
+        public DbSet<LiderPequenoGrupo> LideresPequenoGrupo { get; set; }
+        public DbSet<PequenoGrupo> PequenosGrupos { get; set; }
+        public DbSet<PequenoGrupoMembro> PequenoGrupoMembros { get; set; }
+        public DbSet<PequenoGrupoRelatorio> PequenoGrupoRelatorios { get; set; }
+        public DbSet<PequenoGrupoRelatorioPresenca> PequenoGrupoRelatorioPresencas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

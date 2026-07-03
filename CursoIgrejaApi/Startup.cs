@@ -204,6 +204,11 @@ namespace CursoIgrejaApi
             services.AddScoped<IRelatorioGeraisRepository, RelatorioGeraisRepository>();
             services.AddScoped<IVwPresencaUsuarioRepository, VwPresencaUsuarioRepository>();
             services.AddScoped<ICalendarioAulasRepository, CalendarioAulasRepository>();
+            services.AddScoped<ILiderPequenoGrupoRepository, LiderPequenoGrupoRepository>();
+            services.AddScoped<IPequenoGrupoRepository, PequenoGrupoRepository>();
+            services.AddScoped<IPequenoGrupoMembroRepository, PequenoGrupoMembroRepository>();
+            services.AddScoped<IPequenoGrupoRelatorioRepository, PequenoGrupoRelatorioRepository>();
+            services.AddScoped<IPequenoGrupoRelatorioPresencaRepository, PequenoGrupoRelatorioPresencaRepository>();
 
         }
     }

@@ -229,6 +229,8 @@ namespace CursoIgreja.Api.Controllers
                 if (!await ValidarDadosProcessoInscricao(processoInscricao))
                     return Response("Dados inválidos para cadastro.", false);
 
+                processoInscricao.Curso = null;
+
                 var response = await _processoInscricaoRepository.Adicionar(processoInscricao);
 
                 if (!response)
@@ -254,6 +256,8 @@ namespace CursoIgreja.Api.Controllers
 
                 if (!await ValidarDadosProcessoInscricao(processoInscricao))
                     return Response("Dados inválidos para atualização.", false);
+
+                processoInscricao.Curso = null;
 
                 var response = await _processoInscricaoRepository.Atualizar(processoInscricao);
 
