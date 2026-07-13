@@ -209,6 +209,8 @@ namespace CursoIgrejaApi
             services.AddScoped<IPequenoGrupoMembroRepository, PequenoGrupoMembroRepository>();
             services.AddScoped<IPequenoGrupoRelatorioRepository, PequenoGrupoRelatorioRepository>();
             services.AddScoped<IPequenoGrupoRelatorioPresencaRepository, PequenoGrupoRelatorioPresencaRepository>();
+            services.AddScoped<INotificacaoLiderPgRepository, NotificacaoLiderPgRepository>();
+            services.AddScoped<INotificacaoLiderPgLeituraRepository, NotificacaoLiderPgLeituraRepository>();
 
         }
     }

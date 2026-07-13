@@ -53,6 +53,8 @@ namespace CursoIgreja.Repository.Data
         public DbSet<PequenoGrupoMembro> PequenoGrupoMembros { get; set; }
         public DbSet<PequenoGrupoRelatorio> PequenoGrupoRelatorios { get; set; }
         public DbSet<PequenoGrupoRelatorioPresenca> PequenoGrupoRelatorioPresencas { get; set; }
+        public DbSet<NotificacaoLiderPg> NotificacoesLiderPg { get; set; }
+        public DbSet<NotificacaoLiderPgLeitura> NotificacoesLiderPgLeituras { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
