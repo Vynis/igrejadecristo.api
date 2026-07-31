@@ -143,6 +143,7 @@ namespace CursoIgreja.Api.Controllers
                         Cpf = x.Usuario?.Cpf,
                         TelefoneCelular = x.Usuario?.TelefoneCelular,
                         x.Status,
+                        x.StatusEstudo,
                         x.DataInscricao,
                         x.DataConfirmacao
                     })

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using CursoIgreja.Api.Services;
 using CursoIgreja.Repository.Data;
 using CursoIgreja.Repository.Repository.Class;
 using CursoIgreja.Repository.Repository.Interfaces;
@@ -155,6 +156,8 @@ namespace CursoIgrejaApi
                 endpoints.MapControllers();
             });
 
+            CarregarCargaInicialAdmin(app);
+
             //app.UseStaticFiles();
 
             //app.UseStaticFiles(new StaticFileOptions()
@@ -168,6 +171,15 @@ namespace CursoIgrejaApi
             //    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"arq_videos")),
             //    RequestPath = new PathString("/arq_videos")
             //});
+        }
+
+        private static void CarregarCargaInicialAdmin(IApplicationBuilder app)
+        {
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var dataContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+                AdminSecuritySeedService.Seed(dataContext);
+            }
         }
 
 

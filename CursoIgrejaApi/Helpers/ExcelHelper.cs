@@ -19,6 +19,13 @@ namespace CursoIgreja.Api.Helpers
 
             if (properties.Length == 0)
             {
+                if (!source.Any())
+                {
+                    var emptyStream = new MemoryStream();
+                    workbook.Write(emptyStream);
+                    return emptyStream.ToArray();
+                }
+
                 //header
                 var font = workbook.CreateFont();
                 font.IsBold = true;
