@@ -11,8 +11,10 @@ namespace CursoIgreja.Domain.Models
     {
         public int Id { get; set; }
         public int PefilId { get; set; }
+        [ForeignKey("PefilId")]
         public Perfil Perfil { get; set; }
         public int PermissoesId { get; set; }
+        [ForeignKey("PermissoesId")]
         public Permissoes Permissoes { get; set; }
     }
 }

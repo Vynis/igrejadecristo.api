@@ -206,6 +206,38 @@ namespace CursoIgreja.Api.Controllers
             }
         }
 
+        [HttpPut("alterar-status-estudo/{id}")]
+        public async Task<IActionResult> AlterarStatusEstudo(int id, [FromQuery] string statusEstudo)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(statusEstudo) || (!statusEstudo.Equals("AP") && !statusEstudo.Equals("RE")))
+                    return Response("Status do estudo inválido", false);
+
+                var buscarInscricao = (await _inscricaoUsuarioRepository.Buscar(x => x.Id == id)).FirstOrDefault();
+
+                if (buscarInscricao == null)
+                    return Response("Inscrição nao existe", false);
+
+                buscarInscricao.StatusEstudo = statusEstudo;
+                buscarInscricao.ProcessoInscricao = null;
+                buscarInscricao.TransacaoInscricoes = null;
+                buscarInscricao.Usuario = null;
+
+                var response = await _inscricaoUsuarioRepository.Atualizar(buscarInscricao);
+
+                if (!response)
+                    return Response("Erro ao atualizar", false);
+
+                return Response(buscarInscricao);
+
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
         [HttpGet("buscar-transacao/{idTransacao}")]
         public async Task<IActionResult> BuscarTransacao(string idTransacao)
         {
