@@ -230,6 +230,8 @@ namespace CursoIgreja.Api.Controllers
                 if (!await ValidarDadosProcessoInscricao(processoInscricao))
                     return Response("Dados inválidos para cadastro.", false);
 
+                processoInscricao.Curso = null;
+
                 var response = await _processoInscricaoRepository.Adicionar(processoInscricao);
 
                 if (!response)
@@ -255,6 +257,8 @@ namespace CursoIgreja.Api.Controllers
 
                 if (!await ValidarDadosProcessoInscricao(processoInscricao))
                     return Response("Dados inválidos para atualização.", false);
+
+                processoInscricao.Curso = null;
 
                 var response = await _processoInscricaoRepository.Atualizar(processoInscricao);
 
@@ -303,7 +307,51 @@ namespace CursoIgreja.Api.Controllers
             if (string.IsNullOrEmpty(processoInscricao.Tipo))
                 processoInscricao.Tipo = "G";
 
+            processoInscricao.DiaSemanaCurso = NormalizarDiaSemana(processoInscricao.DiaSemanaCurso);
+
             return true;
+        }
+
+        private string NormalizarDiaSemana(string diaSemana)
+        {
+            if (string.IsNullOrWhiteSpace(diaSemana))
+                return "segunda-feira";
+
+            switch (diaSemana.Trim().ToUpper())
+            {
+                case "DOM":
+                case "DOMINGO":
+                    return "domingo";
+                case "SEG":
+                case "SEGUNDA":
+                case "SEGUNDA-FEIRA":
+                    return "segunda-feira";
+                case "TER":
+                case "TERCA":
+                case "TERÇA":
+                case "TERCA-FEIRA":
+                case "TERÇA-FEIRA":
+                    return "terça-feira";
+                case "QUA":
+                case "QUARTA":
+                case "QUARTA-FEIRA":
+                    return "quarta-feira";
+                case "QUI":
+                case "QUINTA":
+                case "QUINTA-FEIRA":
+                    return "quinta-feira";
+                case "SEX":
+                case "SEXTA":
+                case "SEXTA-FEIRA":
+                    return "sexta-feira";
+                case "SAB":
+                case "SÁB":
+                case "SABADO":
+                case "SÁBADO":
+                    return "sábado";
+                default:
+                    return diaSemana.Trim().ToLower();
+            }
         }
 
 
