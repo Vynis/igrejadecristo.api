@@ -19,13 +19,15 @@ namespace CursoIgreja.Api.Controllers
         private readonly ICursoRepository _cursoRepository;
         private readonly IMapper _mapper;
         private readonly IInscricaoUsuarioRepository _inscricaoUsuarioRepository;
+        private readonly IInscricaoLiberarCursoRepository _inscricaoLiberarCursoRepository;
 
-        public ProcessoInscricaoController(IProcessoInscricaoRepository processoInscricaoRepository, ICursoRepository cursoRepository, IMapper mapper, IInscricaoUsuarioRepository inscricaoUsuarioRepository)
+        public ProcessoInscricaoController(IProcessoInscricaoRepository processoInscricaoRepository, ICursoRepository cursoRepository, IMapper mapper, IInscricaoUsuarioRepository inscricaoUsuarioRepository, IInscricaoLiberarCursoRepository inscricaoLiberarCursoRepository)
         {
             _processoInscricaoRepository = processoInscricaoRepository;
             _cursoRepository = cursoRepository;
             _mapper = mapper;
             _inscricaoUsuarioRepository = inscricaoUsuarioRepository;
+            _inscricaoLiberarCursoRepository = inscricaoLiberarCursoRepository;
         }
 
 
@@ -143,6 +145,7 @@ namespace CursoIgreja.Api.Controllers
                         Cpf = x.Usuario?.Cpf,
                         TelefoneCelular = x.Usuario?.TelefoneCelular,
                         x.Status,
+                        x.StatusEstudo,
                         x.DataInscricao,
                         x.DataConfirmacao
                     })
@@ -214,6 +217,77 @@ namespace CursoIgreja.Api.Controllers
             try
             {
                 return Response(await _processoInscricaoRepository.ObterPorId(id));
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpGet("liberar-cursos/{idProcessoInscricao}")]
+        public async Task<IActionResult> BuscarCursosLiberacao(int idProcessoInscricao)
+        {
+            try
+            {
+                var processoInscricao = await _processoInscricaoRepository.ObterPorId(idProcessoInscricao);
+
+                if (processoInscricao == null)
+                    return Response("Processo de inscrição não encontrado.", false);
+
+                var cursos = await _cursoRepository.Buscar(x => x.Status == "A" && x.Id != processoInscricao.CursoId);
+                var liberacoes = await _inscricaoLiberarCursoRepository.Buscar(x => x.ProcessoInscricoeId == idProcessoInscricao);
+
+                return Response(new
+                {
+                    ProcessoInscricao = processoInscricao,
+                    Cursos = cursos.OrderBy(x => x.Titulo),
+                    CursosLiberadosIds = liberacoes.Select(x => x.CursoId).Distinct().ToArray()
+                });
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpPut("liberar-cursos/{idProcessoInscricao}")]
+        public async Task<IActionResult> SalvarCursosLiberacao(int idProcessoInscricao, [FromBody] LiberarCursosProcessoDto dto)
+        {
+            try
+            {
+                var processoInscricao = await _processoInscricaoRepository.ObterPorId(idProcessoInscricao);
+
+                if (processoInscricao == null)
+                    return Response("Processo de inscrição não encontrado.", false);
+
+                var cursosIds = dto?.CursosIds?.Distinct().ToArray() ?? new int[0];
+
+                if (cursosIds.Contains(processoInscricao.CursoId))
+                    return Response("O curso do próprio processo não pode ser usado como pré-requisito.", false);
+
+                if (cursosIds.Any())
+                {
+                    var cursos = await _cursoRepository.Buscar(x => cursosIds.Contains(x.Id));
+
+                    if (cursos.Length != cursosIds.Length)
+                        return Response("Um ou mais cursos informados não foram encontrados.", false);
+                }
+
+                var liberacoesAtuais = await _inscricaoLiberarCursoRepository.Buscar(x => x.ProcessoInscricoeId == idProcessoInscricao);
+
+                if (liberacoesAtuais.Any())
+                    await _inscricaoLiberarCursoRepository.RemoverRange(liberacoesAtuais);
+
+                foreach (var cursoId in cursosIds)
+                {
+                    await _inscricaoLiberarCursoRepository.Adicionar(new InscricaoLiberarCurso
+                    {
+                        ProcessoInscricoeId = idProcessoInscricao,
+                        CursoId = cursoId
+                    });
+                }
+
+                return Response("Liberação de cursos atualizada com sucesso!");
             }
             catch (Exception ex)
             {
@@ -306,10 +380,59 @@ namespace CursoIgreja.Api.Controllers
             if (string.IsNullOrEmpty(processoInscricao.Tipo))
                 processoInscricao.Tipo = "G";
 
+            processoInscricao.DiaSemanaCurso = NormalizarDiaSemana(processoInscricao.DiaSemanaCurso);
+
             return true;
+        }
+
+        private string NormalizarDiaSemana(string diaSemana)
+        {
+            if (string.IsNullOrWhiteSpace(diaSemana))
+                return "segunda-feira";
+
+            switch (diaSemana.Trim().ToUpper())
+            {
+                case "DOM":
+                case "DOMINGO":
+                    return "domingo";
+                case "SEG":
+                case "SEGUNDA":
+                case "SEGUNDA-FEIRA":
+                    return "segunda-feira";
+                case "TER":
+                case "TERCA":
+                case "TERÇA":
+                case "TERCA-FEIRA":
+                case "TERÇA-FEIRA":
+                    return "terça-feira";
+                case "QUA":
+                case "QUARTA":
+                case "QUARTA-FEIRA":
+                    return "quarta-feira";
+                case "QUI":
+                case "QUINTA":
+                case "QUINTA-FEIRA":
+                    return "quinta-feira";
+                case "SEX":
+                case "SEXTA":
+                case "SEXTA-FEIRA":
+                    return "sexta-feira";
+                case "SAB":
+                case "SÁB":
+                case "SABADO":
+                case "SÁBADO":
+                    return "sábado";
+                default:
+                    return diaSemana.Trim().ToLower();
+            }
         }
 
 
 
+    }
+
+    public class LiberarCursosProcessoDto
+    {
+        public int[] CursosIds { get; set; }
     }
 }
