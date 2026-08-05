@@ -37,6 +37,7 @@ namespace CursoIgreja.Api.Services
             ("Processo de Inscrição - Editar", "processoinscricao.editar"),
             ("Processo de Inscrição - Alunos inscritos", "processoinscricao.alunos_inscritos"),
             ("Processo de Inscrição - Lançar resultado", "processoinscricao.lancar_resultado"),
+            ("Processo de Inscrição - Liberar cursos", "processoinscricao.liberar_cursos"),
             ("Presença - Visualizar", "presenca.visualizar"),
             ("Presença - Lançar", "presenca.lancar"),
             ("Presença - Remover", "presenca.remover"),
