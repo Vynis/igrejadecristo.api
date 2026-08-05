@@ -16,12 +16,14 @@ namespace CursoIgreja.Api.Controllers
     public class ProcessoInscricaoController : ControllerBase
     {
         private readonly IProcessoInscricaoRepository _processoInscricaoRepository;
+        private readonly ICursoRepository _cursoRepository;
         private readonly IMapper _mapper;
         private readonly IInscricaoUsuarioRepository _inscricaoUsuarioRepository;
 
-        public ProcessoInscricaoController(IProcessoInscricaoRepository processoInscricaoRepository, IMapper mapper, IInscricaoUsuarioRepository inscricaoUsuarioRepository)
+        public ProcessoInscricaoController(IProcessoInscricaoRepository processoInscricaoRepository, ICursoRepository cursoRepository, IMapper mapper, IInscricaoUsuarioRepository inscricaoUsuarioRepository)
         {
             _processoInscricaoRepository = processoInscricaoRepository;
+            _cursoRepository = cursoRepository;
             _mapper = mapper;
             _inscricaoUsuarioRepository = inscricaoUsuarioRepository;
         }
@@ -121,6 +123,234 @@ namespace CursoIgreja.Api.Controllers
             catch (Exception ex)
             {
                 return ResponseErro(ex);
+            }
+        }
+
+        [HttpGet("buscar-usuarios-inscritos/{idProcessoInscricao}")]
+        public async Task<IActionResult> BuscarUsuariosInscritos(int idProcessoInscricao)
+        {
+            try
+            {
+                var listaInscritos = await _inscricaoUsuarioRepository.Buscar(x => x.ProcessoInscricaoId == idProcessoInscricao);
+
+                var retorno = listaInscritos
+                    .Select(x => new
+                    {
+                        x.Id,
+                        x.UsuarioId,
+                        Nome = x.Usuario?.Nome,
+                        Email = x.Usuario?.Email,
+                        Cpf = x.Usuario?.Cpf,
+                        TelefoneCelular = x.Usuario?.TelefoneCelular,
+                        x.Status,
+                        x.StatusEstudo,
+                        x.DataInscricao,
+                        x.DataConfirmacao
+                    })
+                    .OrderBy(x => x.Nome)
+                    .ToList();
+
+                return Response(retorno);
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpPost("busca-com-filtro")]
+        public async Task<IActionResult> BuscarComFiltro([FromBody] PaginationFilter filtro)
+        {
+            try
+            {
+                ProcessoInscricao[] processos;
+
+                if (filtro.Filtro.Count() == 0)
+                    processos = await _processoInscricaoRepository.ObterTodos();
+                else
+                    processos = await _processoInscricaoRepository.BuscaFiltroDinamico(filtro);
+
+                await PreencherDadosListagem(processos);
+
+                return Response(processos);
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        private async Task PreencherDadosListagem(ProcessoInscricao[] processos)
+        {
+            if (!processos.Any())
+                return;
+
+            var idsProcessos = processos.Select(x => x.Id).Distinct().ToArray();
+
+            var inscricoes = await _inscricaoUsuarioRepository.Buscar(x => idsProcessos.Contains(x.ProcessoInscricaoId));
+
+            foreach (var processo in processos)
+            {
+                processo.QtdInscricoesTotal = inscricoes.Count(x => x.ProcessoInscricaoId == processo.Id);
+                processo.QtdInscricoesConfirmadas = inscricoes.Count(x => x.ProcessoInscricaoId == processo.Id && x.Status == "CO");
+                processo.QtdInscricoesCanceladas = inscricoes.Count(x => x.ProcessoInscricaoId == processo.Id && x.Status == "CA");
+            }
+
+            var idsSemCurso = processos.Where(x => x.Curso == null).Select(x => x.CursoId).Distinct().ToArray();
+
+            if (!idsSemCurso.Any())
+                return;
+
+            var cursos = await _cursoRepository.Buscar(x => idsSemCurso.Contains(x.Id));
+
+            foreach (var processo in processos.Where(x => x.Curso == null))
+            {
+                processo.Curso = cursos.FirstOrDefault(x => x.Id == processo.CursoId);
+            }
+        }
+
+        [HttpGet("buscar-por-id/{id}")]
+        public async Task<IActionResult> BuscarPorId(int id)
+        {
+            try
+            {
+                return Response(await _processoInscricaoRepository.ObterPorId(id));
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpPost("adcionar")]
+        public async Task<IActionResult> Adicionar(ProcessoInscricao processoInscricao)
+        {
+            try
+            {
+                if (!await ValidarDadosProcessoInscricao(processoInscricao))
+                    return Response("Dados inválidos para cadastro.", false);
+
+                processoInscricao.Curso = null;
+
+                var response = await _processoInscricaoRepository.Adicionar(processoInscricao);
+
+                if (!response)
+                    return Response("Erro ao cadastrar.", false);
+
+                return Response("Cadastro realizado com sucesso!");
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpPut("alterar")]
+        public async Task<IActionResult> Alterar(ProcessoInscricao processoInscricao)
+        {
+            try
+            {
+                var valida = await _processoInscricaoRepository.ObterPorId(processoInscricao.Id);
+
+                if (valida == null)
+                    return Response("Id não enconrado", false);
+
+                if (!await ValidarDadosProcessoInscricao(processoInscricao))
+                    return Response("Dados inválidos para atualização.", false);
+
+                processoInscricao.Curso = null;
+
+                var response = await _processoInscricaoRepository.Atualizar(processoInscricao);
+
+                if (!response)
+                    return Response("Erro ao atualizar.", false);
+
+                return Response("Atualização realizada com sucesso!");
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        private async Task<bool> ValidarDadosProcessoInscricao(ProcessoInscricao processoInscricao)
+        {
+            if (processoInscricao == null)
+                return false;
+
+            if (processoInscricao.CursoId <= 0)
+                return false;
+
+            var curso = await _cursoRepository.ObterPorId(processoInscricao.CursoId);
+
+            if (curso == null)
+                return false;
+
+            if (processoInscricao.DataInicial > processoInscricao.DataFinal)
+                return false;
+
+            if (processoInscricao.DataInicalPagto.HasValue && processoInscricao.DataFinalPagto.HasValue && processoInscricao.DataInicalPagto > processoInscricao.DataFinalPagto)
+                return false;
+
+            if (processoInscricao.DataInicioVisualizacaoCurso.HasValue && processoInscricao.DataFinalVisualizacaoCurso.HasValue && processoInscricao.DataInicioVisualizacaoCurso > processoInscricao.DataFinalVisualizacaoCurso)
+                return false;
+
+            if (processoInscricao.DataInicioPresencial.HasValue && processoInscricao.DataFinalPresencial.HasValue && processoInscricao.DataInicioPresencial > processoInscricao.DataFinalPresencial)
+                return false;
+
+            if (string.IsNullOrEmpty(processoInscricao.Status))
+                processoInscricao.Status = "A";
+
+            if (string.IsNullOrEmpty(processoInscricao.ConfiguraPeriodo))
+                processoInscricao.ConfiguraPeriodo = "N";
+
+            if (string.IsNullOrEmpty(processoInscricao.Tipo))
+                processoInscricao.Tipo = "G";
+
+            processoInscricao.DiaSemanaCurso = NormalizarDiaSemana(processoInscricao.DiaSemanaCurso);
+
+            return true;
+        }
+
+        private string NormalizarDiaSemana(string diaSemana)
+        {
+            if (string.IsNullOrWhiteSpace(diaSemana))
+                return "segunda-feira";
+
+            switch (diaSemana.Trim().ToUpper())
+            {
+                case "DOM":
+                case "DOMINGO":
+                    return "domingo";
+                case "SEG":
+                case "SEGUNDA":
+                case "SEGUNDA-FEIRA":
+                    return "segunda-feira";
+                case "TER":
+                case "TERCA":
+                case "TERÇA":
+                case "TERCA-FEIRA":
+                case "TERÇA-FEIRA":
+                    return "terça-feira";
+                case "QUA":
+                case "QUARTA":
+                case "QUARTA-FEIRA":
+                    return "quarta-feira";
+                case "QUI":
+                case "QUINTA":
+                case "QUINTA-FEIRA":
+                    return "quinta-feira";
+                case "SEX":
+                case "SEXTA":
+                case "SEXTA-FEIRA":
+                    return "sexta-feira";
+                case "SAB":
+                case "SÁB":
+                case "SABADO":
+                case "SÁBADO":
+                    return "sábado";
+                default:
+                    return diaSemana.Trim().ToLower();
             }
         }
 

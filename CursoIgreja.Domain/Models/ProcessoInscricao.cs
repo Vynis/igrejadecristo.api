@@ -53,5 +53,16 @@ namespace CursoIgreja.Domain.Models
         public List<InscricaoLiberarCurso> InscricaoLiberarCursos { get; set; }
         public List<PresencaUsuario> PresencaUsuarios { get; set; }
 
+        public string Descricao { get; set; }
+
+        [NotMapped]
+        public int QtdInscricoesTotal { get; set; }
+
+        [NotMapped]
+        public int QtdInscricoesConfirmadas { get; set; }
+
+        [NotMapped]
+        public int QtdInscricoesCanceladas { get; set; }
+
     }
 }

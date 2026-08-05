@@ -119,6 +119,12 @@ namespace CursoIgreja.Api.Controllers
 
                 }
 
+                var processo = (await _inscricaoUsuarioRepository.Buscar(x => x.ProcessoInscricaoId.Equals(ProcessoInscricaoId) && x.UsuarioId.Equals(Convert.ToInt32(User.Identity.Name)) && x.Status.Equals("CO"))).FirstOrDefault();
+
+                if (processo == null)
+                    return Response("Usuario bloquedo para checkin! Favor entrar em contato com administrador", false);
+
+                
                 var presencaoUsuario = new PresencaUsuario
                 {
                     ProcessoInscricaoId = ProcessoInscricaoId,
