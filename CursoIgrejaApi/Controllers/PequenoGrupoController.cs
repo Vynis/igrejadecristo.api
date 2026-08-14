@@ -398,6 +398,290 @@ namespace CursoIgreja.Api.Controllers
             }
         }
 
+        [HttpGet("admin/membros")]
+        public async Task<IActionResult> AdminBuscarMembros()
+        {
+            try
+            {
+                var membros = await _pequenoGrupoMembroRepository.ObterTodos();
+                return Response(membros.OrderBy(x => x.Nome).ToArray());
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpGet("admin/membros/{id}")]
+        public async Task<IActionResult> AdminBuscarMembroPorId(int id)
+        {
+            try
+            {
+                var membro = await _pequenoGrupoMembroRepository.ObterPorId(id);
+
+                if (membro == null)
+                    return Response("Membro não encontrado.", false);
+
+                return Response(membro);
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpPost("admin/membros")]
+        public async Task<IActionResult> AdminCadastrarMembro(PequenoGrupoMembro membro)
+        {
+            try
+            {
+                var pequenoGrupo = await _pequenoGrupoRepository.ObterPorId(membro.PequenoGrupoId);
+
+                if (pequenoGrupo == null)
+                    return Response("PG não encontrado.", false);
+
+                membro.Id = 0;
+                membro.Status = string.IsNullOrEmpty(membro.Status) ? "A" : membro.Status;
+                membro.DataCadastro = DateTime.Now;
+
+                var response = await _pequenoGrupoMembroRepository.Adicionar(membro);
+
+                if (!response)
+                    return Response("Erro ao cadastrar membro.", false);
+
+                return Response(membro);
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpPut("admin/membros")]
+        public async Task<IActionResult> AdminAtualizarMembro(PequenoGrupoMembro membro)
+        {
+            try
+            {
+                var membroBanco = await _pequenoGrupoMembroRepository.ObterPorId(membro.Id);
+
+                if (membroBanco == null)
+                    return Response("Membro não encontrado.", false);
+
+                var pequenoGrupo = await _pequenoGrupoRepository.ObterPorId(membro.PequenoGrupoId);
+
+                if (pequenoGrupo == null)
+                    return Response("PG não encontrado.", false);
+
+                membro.DataCadastro = membroBanco.DataCadastro;
+                membro.Status = string.IsNullOrEmpty(membro.Status) ? membroBanco.Status : membro.Status;
+
+                _pequenoGrupoMembroRepository.DeatchLocal(x => x.Id == membro.Id);
+                var response = await _pequenoGrupoMembroRepository.Atualizar(membro);
+
+                if (!response)
+                    return Response("Erro ao atualizar membro.", false);
+
+                return Response("Atualização realizada com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpPut("admin/membros/inativar/{id}")]
+        public async Task<IActionResult> AdminInativarMembro(int id)
+        {
+            try
+            {
+                var membro = await _pequenoGrupoMembroRepository.ObterPorId(id);
+
+                if (membro == null)
+                    return Response("Membro não encontrado.", false);
+
+                membro.Status = "I";
+                membro.DataSaida = DateTime.Now;
+
+                var response = await _pequenoGrupoMembroRepository.Atualizar(membro);
+
+                if (!response)
+                    return Response("Erro ao inativar membro.", false);
+
+                return Response("Membro inativado com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpPut("admin/membros/reativar/{id}")]
+        public async Task<IActionResult> AdminReativarMembro(int id)
+        {
+            try
+            {
+                var membro = await _pequenoGrupoMembroRepository.ObterPorId(id);
+
+                if (membro == null)
+                    return Response("Membro não encontrado.", false);
+
+                membro.Status = "A";
+                membro.DataSaida = null;
+
+                var response = await _pequenoGrupoMembroRepository.Atualizar(membro);
+
+                if (!response)
+                    return Response("Erro ao reativar membro.", false);
+
+                return Response("Membro reativado com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpGet("admin/relatorios")]
+        public async Task<IActionResult> AdminBuscarRelatorios()
+        {
+            try
+            {
+                var relatorios = await _pequenoGrupoRelatorioRepository.Buscar(x => x.Status == "Enviado");
+                return Response(await MontarRelatoriosComPresencas(relatorios.OrderByDescending(x => x.DataReuniao).ToArray()));
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpGet("admin/relatorios/{id}")]
+        public async Task<IActionResult> AdminBuscarRelatorioPorId(int id)
+        {
+            try
+            {
+                var relatorio = await _pequenoGrupoRelatorioRepository.ObterPorId(id);
+
+                if (relatorio == null)
+                    return Response("Relatório não encontrado.", false);
+
+                return Response(await MontarRelatorioComPresencas(relatorio));
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpPut("admin/relatorios")]
+        public async Task<IActionResult> AdminAtualizarRelatorio(PequenoGrupoRelatorioRequest relatorio)
+        {
+            try
+            {
+                var relatorioBanco = await _pequenoGrupoRelatorioRepository.ObterPorId(relatorio.Id);
+
+                if (relatorioBanco == null)
+                    return Response("Relatório não encontrado.", false);
+
+                relatorioBanco.DataReuniao = relatorio.DataReuniao;
+                relatorioBanco.SemanaReferencia = relatorio.SemanaReferencia;
+                relatorioBanco.QuantidadeAtivos = relatorio.QuantidadeAtivos;
+                relatorioBanco.QuantidadeRotativos = relatorio.QuantidadeRotativos;
+                relatorioBanco.QuantidadeCriancas = relatorio.QuantidadeCriancas;
+                relatorioBanco.QuantidadeVisitantes = relatorio.QuantidadeVisitantes;
+                relatorioBanco.Observacao = relatorio.Observacao;
+                relatorioBanco.Status = string.IsNullOrEmpty(relatorio.Status) ? relatorioBanco.Status : relatorio.Status;
+
+                if (relatorioBanco.Status == "Enviado" && relatorioBanco.DataEnvio == null)
+                    relatorioBanco.DataEnvio = DateTime.Now;
+
+                _pequenoGrupoRelatorioRepository.DeatchLocal(x => x.Id == relatorioBanco.Id);
+                var response = await _pequenoGrupoRelatorioRepository.Atualizar(relatorioBanco);
+
+                if (!response)
+                    return Response("Erro ao atualizar relatório.", false);
+
+                await SalvarPresencas(relatorioBanco.Id, relatorioBanco.PequenoGrupoId, relatorio.Presencas);
+
+                return Response("Atualização realizada com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpGet("admin/relatorio-geral")]
+        public async Task<IActionResult> AdminRelatorioGeral()
+        {
+            try
+            {
+                var pequenosGrupos = await _pequenoGrupoRepository.ObterTodos();
+                var membros = await _pequenoGrupoMembroRepository.ObterTodos();
+                var relatorios = await _pequenoGrupoRelatorioRepository.ObterTodos();
+
+                var retorno = pequenosGrupos.OrderBy(x => x.Nome).Select(pg =>
+                {
+                    var relatoriosPg = relatorios.Where(r => r.PequenoGrupoId == pg.Id).OrderByDescending(r => r.DataReuniao).ToArray();
+                    var ultimoRelatorio = relatoriosPg.FirstOrDefault();
+                    var membrosAtivos = membros.Count(m => m.PequenoGrupoId == pg.Id && m.Status == "A");
+                    var mediaPresenca = relatoriosPg.Any() ? relatoriosPg.Average(r => r.QuantidadeAtivos + r.QuantidadeRotativos + r.QuantidadeCriancas + r.QuantidadeVisitantes) : 0;
+
+                    return new
+                    {
+                        pg.Id,
+                        pg.Nome,
+                        pg.CongregacaoId,
+                        pg.LiderPequenoGrupoId,
+                        pg.DiaSemana,
+                        pg.HorarioReuniao,
+                        pg.Status,
+                        MembrosAtivos = membrosAtivos,
+                        TotalRelatorios = relatoriosPg.Length,
+                        UltimoRelatorio = ultimoRelatorio?.DataReuniao,
+                        StatusUltimoRelatorio = ultimoRelatorio?.Status,
+                        MediaPresenca = Math.Round(mediaPresenca, 1)
+                    };
+                }).ToArray();
+
+                return Response(retorno);
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        [HttpGet("admin/checkins")]
+        public async Task<IActionResult> AdminCheckins()
+        {
+            try
+            {
+                var relatorios = await _pequenoGrupoRelatorioRepository.ObterTodos();
+                var retorno = relatorios.OrderByDescending(x => x.DataReuniao).Select(x => new
+                {
+                    x.Id,
+                    x.PequenoGrupoId,
+                    x.LiderPequenoGrupoId,
+                    x.DataReuniao,
+                    x.SemanaReferencia,
+                    x.QuantidadeAtivos,
+                    x.QuantidadeRotativos,
+                    x.QuantidadeCriancas,
+                    x.QuantidadeVisitantes,
+                    TotalPresente = x.QuantidadeAtivos + x.QuantidadeRotativos + x.QuantidadeCriancas + x.QuantidadeVisitantes,
+                    x.Status,
+                    x.DataEnvio
+                }).ToArray();
+
+                return Response(retorno);
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
         [HttpGet("membros")]
         public async Task<IActionResult> BuscarMembros()
         {
@@ -887,7 +1171,7 @@ namespace CursoIgreja.Api.Controllers
             if (presencas == null || !presencas.Any())
                 return;
 
-            var membros = await _pequenoGrupoMembroRepository.Buscar(x => x.PequenoGrupoId == pequenoGrupoId && x.Status == "A");
+            var membros = await _pequenoGrupoMembroRepository.Buscar(x => x.PequenoGrupoId == pequenoGrupoId);
             var membrosIds = membros.Select(x => x.Id).ToArray();
 
             foreach (var presenca in presencas.Where(x => membrosIds.Contains(x.PequenoGrupoMembroId)))
