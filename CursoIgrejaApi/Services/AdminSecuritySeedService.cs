@@ -46,7 +46,28 @@ namespace CursoIgreja.Api.Services
             ("Relatórios - Presença", "relatorios.presenca"),
             ("Relatórios - Evolução dos Alunos", "relatorios.evolucao_alunos"),
             ("Permissões - Visualizar", "permissoes.visualizar"),
-            ("Permissões - Editar", "permissoes.editar")
+            ("Permissões - Editar", "permissoes.editar"),
+            ("Pequenos Grupos - Visualizar", "pequenosgrupos.visualizar"),
+            ("Pequenos Grupos - PGs - Visualizar", "pequenosgrupos.pg.visualizar"),
+            ("Pequenos Grupos - PGs - Criar", "pequenosgrupos.pg.criar"),
+            ("Pequenos Grupos - PGs - Editar", "pequenosgrupos.pg.editar"),
+            ("Pequenos Grupos - Líderes - Visualizar", "pequenosgrupos.lideres.visualizar"),
+            ("Pequenos Grupos - Líderes - Criar", "pequenosgrupos.lideres.criar"),
+            ("Pequenos Grupos - Líderes - Editar", "pequenosgrupos.lideres.editar"),
+            ("Pequenos Grupos - Líderes - Inativar", "pequenosgrupos.lideres.inativar"),
+            ("Pequenos Grupos - Membros - Visualizar", "pequenosgrupos.membros.visualizar"),
+            ("Pequenos Grupos - Membros - Criar", "pequenosgrupos.membros.criar"),
+            ("Pequenos Grupos - Membros - Editar", "pequenosgrupos.membros.editar"),
+            ("Pequenos Grupos - Membros - Inativar", "pequenosgrupos.membros.inativar"),
+            ("Pequenos Grupos - Membros - Reativar", "pequenosgrupos.membros.reativar"),
+            ("Pequenos Grupos - Relatórios - Visualizar", "pequenosgrupos.relatorios.visualizar"),
+            ("Pequenos Grupos - Relatórios - Editar", "pequenosgrupos.relatorios.editar"),
+            ("Pequenos Grupos - Relatório Geral - Visualizar", "pequenosgrupos.relatoriogeral.visualizar"),
+            ("Pequenos Grupos - Check-ins - Visualizar", "pequenosgrupos.checkins.visualizar"),
+            ("Pequenos Grupos - Notificações - Visualizar", "pequenosgrupos.notificacoes.visualizar"),
+            ("Pequenos Grupos - Notificações - Criar", "pequenosgrupos.notificacoes.criar"),
+            ("Pequenos Grupos - Notificações - Editar", "pequenosgrupos.notificacoes.editar"),
+            ("Pequenos Grupos - Notificações - Inativar", "pequenosgrupos.notificacoes.inativar")
         };
 
         private static readonly Dictionary<string, string[]> PermissoesPorPerfil = new Dictionary<string, string[]>
