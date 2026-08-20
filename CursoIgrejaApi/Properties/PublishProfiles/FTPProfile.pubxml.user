@@ -8,7 +8,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <TimeStampOfAssociatedLegacyPublishXmlFile />
     <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAA6ryffRYM6kiQ80AG81B8zwAAAAACAAAAAAAQZgAAAAEAACAAAAB6p+iPdj8bZ2V7DnqyWROpjKAw61EZm/0UxK1ZPt8hcgAAAAAOgAAAAAIAACAAAAAdLu/aWSCSAxy2NOIQrn1mysYJC0K5+OYMdV/B0wkAhCAAAAAMIn7nffcSuuemI9SySHnWgRLwLPxhbBfMPCjoxZUH80AAAACtpMGsKcdigIoK/n6Ii3M5pLDWqE142rFZryyi+6bd9B0VPucrsfu/ubjUTfuC5bZZpFdioaOioOp6llpuYPIZ</EncryptedPassword>
     <_PublishTargetUrl>ftp://191.6.218.50/www/api</_PublishTargetUrl>
-    <History>True|2026-08-05T18:02:16.1890208Z;True|2026-08-05T14:10:30.7769533-03:00;True|2026-07-31T16:00:27.7468096-03:00;True|2026-04-08T14:50:16.6093646-03:00;True|2025-08-23T11:42:40.6574318-03:00;True|2025-08-23T11:24:50.8725185-03:00;True|2025-08-23T11:12:03.4171997-03:00;True|2025-08-18T13:59:46.3617483-03:00;True|2024-05-23T07:57:23.9077294-03:00;True|2024-04-04T10:13:22.9973973-03:00;True|2024-02-16T11:04:03.4961114-03:00;True|2024-02-16T10:39:07.9371726-03:00;True|2024-02-14T20:04:02.9923130-03:00;True|2024-02-08T11:40:24.7279812-03:00;True|2024-02-07T18:30:53.7161524-03:00;True|2024-02-05T09:26:59.1548206-03:00;True|2024-02-05T09:16:58.9325637-03:00;True|2024-02-05T09:05:40.8906557-03:00;True|2024-01-31T20:09:03.2311828-03:00;True|2024-01-31T19:54:42.7049275-03:00;True|2024-01-31T19:31:14.6283842-03:00;True|2024-01-31T19:11:23.6282605-03:00;True|2024-01-30T14:49:04.3633575-03:00;True|2024-01-30T13:00:58.3991875-03:00;True|2024-01-30T12:51:49.2363490-03:00;True|2023-11-03T17:20:56.1704327-03:00;True|2023-10-31T08:54:56.6667863-03:00;True|2023-09-02T14:36:08.6451360-03:00;True|2023-08-28T15:24:58.3354396-03:00;True|2023-08-12T10:11:32.0995424-03:00;True|2023-08-11T11:25:48.4192606-03:00;True|2023-08-07T23:52:25.1743985-03:00;True|2023-08-07T11:37:47.0956743-03:00;True|2023-08-07T09:21:08.9656983-03:00;True|2023-08-07T09:17:31.7176372-03:00;True|2023-08-07T09:12:46.4501027-03:00;True|2023-08-07T09:03:33.7321639-03:00;True|2023-02-28T08:31:29.4581333-03:00;True|2021-10-27T18:52:36.7590280-03:00;True|2021-05-09T08:55:14.7574762-03:00;True|2021-04-24T09:18:03.9373650-03:00;False|2021-04-24T09:11:17.7028783-03:00;False|2021-04-24T09:10:54.9771376-03:00;</History>
+    <History>True|2026-08-20T15:04:45.0735612Z||;True|2026-08-05T15:02:16.1890208-03:00||;True|2026-08-05T14:10:30.7769533-03:00||;True|2026-07-31T16:00:27.7468096-03:00||;True|2026-04-08T14:50:16.6093646-03:00||;True|2025-08-23T11:42:40.6574318-03:00||;True|2025-08-23T11:24:50.8725185-03:00||;True|2025-08-23T11:12:03.4171997-03:00||;True|2025-08-18T13:59:46.3617483-03:00||;True|2024-05-23T07:57:23.9077294-03:00||;True|2024-04-04T10:13:22.9973973-03:00||;True|2024-02-16T11:04:03.4961114-03:00||;True|2024-02-16T10:39:07.9371726-03:00||;True|2024-02-14T20:04:02.9923130-03:00||;True|2024-02-08T11:40:24.7279812-03:00||;True|2024-02-07T18:30:53.7161524-03:00||;True|2024-02-05T09:26:59.1548206-03:00||;True|2024-02-05T09:16:58.9325637-03:00||;True|2024-02-05T09:05:40.8906557-03:00||;True|2024-01-31T20:09:03.2311828-03:00||;True|2024-01-31T19:54:42.7049275-03:00||;True|2024-01-31T19:31:14.6283842-03:00||;True|2024-01-31T19:11:23.6282605-03:00||;True|2024-01-30T14:49:04.3633575-03:00||;True|2024-01-30T13:00:58.3991875-03:00||;True|2024-01-30T12:51:49.2363490-03:00||;True|2023-11-03T17:20:56.1704327-03:00||;True|2023-10-31T08:54:56.6667863-03:00||;True|2023-09-02T14:36:08.6451360-03:00||;True|2023-08-28T15:24:58.3354396-03:00||;True|2023-08-12T10:11:32.0995424-03:00||;True|2023-08-11T11:25:48.4192606-03:00||;True|2023-08-07T23:52:25.1743985-03:00||;True|2023-08-07T11:37:47.0956743-03:00||;True|2023-08-07T09:21:08.9656983-03:00||;True|2023-08-07T09:17:31.7176372-03:00||;True|2023-08-07T09:12:46.4501027-03:00||;True|2023-08-07T09:03:33.7321639-03:00||;True|2023-02-28T08:31:29.4581333-03:00||;True|2021-10-27T18:52:36.7590280-03:00||;True|2021-05-09T08:55:14.7574762-03:00||;True|2021-04-24T09:18:03.9373650-03:00||;False|2021-04-24T09:11:17.7028783-03:00||;False|2021-04-24T09:10:54.9771376-03:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
   <ItemGroup>
@@ -28,43 +28,43 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>04/21/2023 09:07:00</publishTime>
     </File>
     <File Include="CursoIgreja.Api.deps.json">
-      <publishTime>08/05/2026 14:59:13</publishTime>
+      <publishTime>08/20/2026 12:02:54</publishTime>
     </File>
     <File Include="CursoIgreja.Api.dll">
-      <publishTime>08/05/2026 14:58:56</publishTime>
+      <publishTime>08/20/2026 12:02:50</publishTime>
     </File>
     <File Include="CursoIgreja.Api.exe">
-      <publishTime>08/05/2026 14:58:56</publishTime>
+      <publishTime>08/20/2026 12:02:50</publishTime>
     </File>
     <File Include="CursoIgreja.Api.pdb">
-      <publishTime>08/05/2026 14:58:55</publishTime>
+      <publishTime>08/20/2026 12:02:50</publishTime>
     </File>
     <File Include="CursoIgreja.Api.runtimeconfig.json">
-      <publishTime>08/05/2026 14:58:56</publishTime>
+      <publishTime>08/20/2026 12:02:50</publishTime>
     </File>
     <File Include="CursoIgreja.Domain.dll">
-      <publishTime>08/05/2026 14:58:46</publishTime>
+      <publishTime>08/20/2026 12:02:43</publishTime>
     </File>
     <File Include="CursoIgreja.Domain.pdb">
-      <publishTime>08/05/2026 14:58:46</publishTime>
+      <publishTime>08/20/2026 12:02:43</publishTime>
     </File>
     <File Include="CursoIgreja.PagSeguro.dll">
-      <publishTime>08/05/2026 14:58:43</publishTime>
+      <publishTime>08/20/2026 12:02:43</publishTime>
     </File>
     <File Include="CursoIgreja.PagSeguro.pdb">
-      <publishTime>08/05/2026 14:58:43</publishTime>
+      <publishTime>08/20/2026 12:02:43</publishTime>
     </File>
     <File Include="CursoIgreja.PagSeguroApi.dll">
-      <publishTime>08/05/2026 14:58:41</publishTime>
+      <publishTime>08/20/2026 12:02:43</publishTime>
     </File>
     <File Include="CursoIgreja.PagSeguroApi.pdb">
-      <publishTime>08/05/2026 14:58:41</publishTime>
+      <publishTime>08/20/2026 12:02:43</publishTime>
     </File>
     <File Include="CursoIgreja.Repository.dll">
-      <publishTime>08/05/2026 14:58:51</publishTime>
+      <publishTime>08/20/2026 12:02:45</publishTime>
     </File>
     <File Include="CursoIgreja.Repository.pdb">
-      <publishTime>08/05/2026 14:58:51</publishTime>
+      <publishTime>08/20/2026 12:02:45</publishTime>
     </File>
     <File Include="EFCore.NamingConventions.dll">
       <publishTime>01/01/0001 00:00:00</publishTime>
@@ -73,10 +73,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>11/18/2022 19:40:50</publishTime>
     </File>
     <File Include="FiltrDinamico.Core.dll">
-      <publishTime>08/05/2026 14:58:41</publishTime>
+      <publishTime>08/20/2026 12:02:41</publishTime>
     </File>
     <File Include="FiltrDinamico.Core.pdb">
-      <publishTime>08/05/2026 14:58:41</publishTime>
+      <publishTime>08/20/2026 12:02:41</publishTime>
     </File>
     <File Include="Google.Protobuf.dll">
       <publishTime>11/15/2023 08:29:56</publishTime>
@@ -355,7 +355,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>10/22/2021 20:50:26</publishTime>
     </File>
     <File Include="web.config">
-      <publishTime>08/05/2026 14:59:13</publishTime>
+      <publishTime>08/20/2026 12:02:54</publishTime>
     </File>
     <File Include="ZstdSharp.dll">
       <publishTime>04/06/2023 09:25:30</publishTime>
