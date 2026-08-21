@@ -110,57 +110,17 @@ namespace CursoIgreja.Api.Controllers
         {
             try
             {
-                var processoInscricao = await _processoInscricaoRepository.ObterPorId(inscricaoUsuario.ProcessoInscricaoId);
+                var usuarioId = Convert.ToInt32(User.Identity.Name);
+                var validacao = await ValidarInscricao(inscricaoUsuario.ProcessoInscricaoId, usuarioId);
 
-                var usuarioIncritos = (await _inscricaoUsuarioRepository.Buscar(x => x.ProcessoInscricaoId.Equals(inscricaoUsuario.ProcessoInscricaoId) && x.Status != "CA")).Count();
-
-                var validaInscricao = await _inscricaoUsuarioRepository.Buscar(x => x.ProcessoInscricaoId.Equals(inscricaoUsuario.ProcessoInscricaoId)
-                && x.UsuarioId.Equals(Convert.ToInt32(User.Identity.Name)) && x.Status != "CA");
-          
-                if (validaInscricao.Any())
-                    return Response("Já se encontra inscrito neste curso", false);
-
-                if (processoInscricao.LimiteVagas != 0)
-                 if (usuarioIncritos > processoInscricao.LimiteVagas)
-                    return Response("Limite de vagas excedido.", false);
-
-                var listaLiberacaoCurso = await _inscricaoLiberarCursoRepository.Buscar(x => x.ProcessoInscricoeId == inscricaoUsuario.ProcessoInscricaoId);
-
-                if (listaLiberacaoCurso.Any())
-                {
-                    foreach(var item in listaLiberacaoCurso)
-                    {
-                        var processoInscricaoLiberar = await _processoInscricaoRepository.Buscar(x => x.CursoId == item.CursoId);
-
-                        if (!processoInscricaoLiberar.Any())
-                            return Response("Não é possível se inscrever para este curso.", false);
-
-                        bool validaInscricao2 = false;
-
-                        foreach (var processo in processoInscricaoLiberar)
-                        {
-                            var valida = await _inscricaoUsuarioRepository.Buscar(x => x.ProcessoInscricaoId.Equals(processo.Id)
-                                                         && x.UsuarioId.Equals(Convert.ToInt32(User.Identity.Name)) && x.Status != "CA" && x.StatusEstudo.Equals("AP"));
-
-                            if (valida.Count() > 0)
-                            {
-                                validaInscricao2 = true;
-                                break;
-                            }
-                                
-                        }
-
-                        if (!validaInscricao2)
-                            return Response("Não é possível se inscrever para este curso.", false);
-
-                    }
-
-                }
+                if (!string.IsNullOrEmpty(validacao))
+                    return Response(validacao, false);
 
                 inscricaoUsuario.DataInscricao = DateTime.Now;
+                await PreencherValorInscricao(inscricaoUsuario);
                 inscricaoUsuario.Usuario = null;
                 inscricaoUsuario.ProcessoInscricao = null;
-                inscricaoUsuario.UsuarioId = Convert.ToInt32(User.Identity.Name);
+                inscricaoUsuario.UsuarioId = usuarioId;
 
                 var response = await _inscricaoUsuarioRepository.Adicionar(inscricaoUsuario);
 
@@ -177,6 +137,130 @@ namespace CursoIgreja.Api.Controllers
             {
                 return ResponseErro(ex);
             }
+        }
+
+        [HttpPost("cadastrar-manual")]
+        public async Task<IActionResult> CadastrarManual(InscricaoManualDto inscricaoManual)
+        {
+            try
+            {
+                if (inscricaoManual.UsuarioId <= 0)
+                    return Response("Aluno inválido", false);
+
+                if (inscricaoManual.ProcessoInscricaoId <= 0)
+                    return Response("Processo de inscrição inválido", false);
+
+                if (string.IsNullOrEmpty(inscricaoManual.Status))
+                    inscricaoManual.Status = "AG";
+
+                if (!inscricaoManual.Status.Equals("AG") && !inscricaoManual.Status.Equals("CO"))
+                    return Response("Status da inscrição inválido", false);
+
+                var validacao = await ValidarInscricao(inscricaoManual.ProcessoInscricaoId, inscricaoManual.UsuarioId);
+
+                if (!string.IsNullOrEmpty(validacao))
+                    return Response(validacao, false);
+
+                var inscricaoUsuario = new InscricaoUsuario
+                {
+                    DataInscricao = DateTime.Now,
+                    DataConfirmacao = DateTime.MinValue,
+                    ProcessoInscricaoId = inscricaoManual.ProcessoInscricaoId,
+                    Status = inscricaoManual.Status,
+                    UsuarioId = inscricaoManual.UsuarioId
+                };
+
+                await PreencherValorInscricao(inscricaoUsuario);
+
+                var response = await _inscricaoUsuarioRepository.Adicionar(inscricaoUsuario);
+
+                if (response)
+                {
+                    inscricaoUsuario.ProcessoInscricao = await _processoInscricaoRepository.ObterPorId(inscricaoUsuario.ProcessoInscricaoId);
+                    return Response(inscricaoUsuario);
+                }
+
+                return Response("Cadastro não realizado", false);
+            }
+            catch (Exception ex)
+            {
+                return ResponseErro(ex);
+            }
+        }
+
+        private async Task<string> ValidarInscricao(int processoInscricaoId, int usuarioId)
+        {
+            var processoInscricao = await _processoInscricaoRepository.ObterPorId(processoInscricaoId);
+
+            if (processoInscricao == null)
+                return "Processo de inscrição não localizado";
+
+            var usuarioIncritos = (await _inscricaoUsuarioRepository.Buscar(x => x.ProcessoInscricaoId.Equals(processoInscricaoId) && x.Status != "CA")).Count();
+
+            var validaInscricao = await _inscricaoUsuarioRepository.Buscar(x => x.ProcessoInscricaoId.Equals(processoInscricaoId)
+                && x.UsuarioId.Equals(usuarioId) && (x.Status.Equals("AG") || x.Status.Equals("CO")));
+
+            if (validaInscricao.Any())
+                return "Aluno já possui inscrição ativa neste processo.";
+
+            if (processoInscricao.LimiteVagas != 0)
+                if (usuarioIncritos > processoInscricao.LimiteVagas)
+                    return "Limite de vagas excedido.";
+
+            if (processoInscricao.Tipo == "P" && processoInscricao.Lotes != null && processoInscricao.Lotes.Any(x => x.Status == "A") && ObterLoteAtual(processoInscricao) == null)
+                return "Não há lote de pagamento ativo para esta inscrição.";
+
+            var listaLiberacaoCurso = await _inscricaoLiberarCursoRepository.Buscar(x => x.ProcessoInscricoeId == processoInscricaoId);
+
+            if (listaLiberacaoCurso.Any())
+            {
+                foreach (var item in listaLiberacaoCurso)
+                {
+                    var processoInscricaoLiberar = await _processoInscricaoRepository.Buscar(x => x.CursoId == item.CursoId);
+
+                    if (!processoInscricaoLiberar.Any())
+                        return "Não é possível se inscrever para este curso.";
+
+                    bool validaInscricao2 = false;
+
+                    foreach (var processo in processoInscricaoLiberar)
+                    {
+                        var valida = await _inscricaoUsuarioRepository.Buscar(x => x.ProcessoInscricaoId.Equals(processo.Id)
+                                                     && x.UsuarioId.Equals(usuarioId) && x.Status != "CA" && x.StatusEstudo.Equals("AP"));
+
+                        if (valida.Count() > 0)
+                        {
+                            validaInscricao2 = true;
+                            break;
+                        }
+                    }
+
+                    if (!validaInscricao2)
+                        return "Não é possível se inscrever para este curso.";
+                }
+            }
+
+            return null;
+        }
+
+        private async Task PreencherValorInscricao(InscricaoUsuario inscricaoUsuario)
+        {
+            var processoInscricao = await _processoInscricaoRepository.ObterPorId(inscricaoUsuario.ProcessoInscricaoId);
+            var loteAtual = ObterLoteAtual(processoInscricao);
+
+            inscricaoUsuario.ProcessoInscricaoLoteId = loteAtual?.Id;
+            inscricaoUsuario.ValorInscricao = loteAtual?.Valor ?? processoInscricao?.Valor;
+            inscricaoUsuario.ValorPixBoletoInscricao = loteAtual?.ValorPixBoleto ?? processoInscricao?.ValorPixBoleto;
+        }
+
+        private ProcessoInscricaoLote ObterLoteAtual(ProcessoInscricao processoInscricao)
+        {
+            var agora = DateTime.Now;
+
+            return processoInscricao?.Lotes?
+                .Where(x => x.Status == "A" && agora >= x.DataInicial && agora <= x.DataFinal)
+                .OrderBy(x => x.DataInicial)
+                .FirstOrDefault();
         }
 
         [HttpPut("cancelar-incricao/{id}")]
@@ -294,6 +378,11 @@ namespace CursoIgreja.Api.Controllers
 
                 inscricao.TransacaoInscricoes = new List<TransacaoInscricao>();
 
+                var validacaoPagamento = await AtualizarValorInscricaoParaPagamento(inscricao);
+
+                if (!string.IsNullOrEmpty(validacaoPagamento))
+                    return Response(validacaoPagamento, false);
+
                 var dadosConfigPagamento = await _meioPagamentoRepository.Buscar(x => x.Status.Equals("A"));
 
                 var dadosCurso = await _cursoRepository.ObterPorId(inscricao.ProcessoInscricao.CursoId);
@@ -301,6 +390,9 @@ namespace CursoIgreja.Api.Controllers
                 var emailPagSeguro = dadosConfigPagamento.FirstOrDefault().Email;
                 var tokenPagSeguro = dadosConfigPagamento.FirstOrDefault().Token;
                 string urlCheckout = $"{urlApiPagueSeguro}/checkouts";
+
+                var valorCartao = inscricao.ValorInscricao ?? inscricao.ProcessoInscricao.Valor;
+                var valorPixBoleto = inscricao.ValorPixBoletoInscricao ?? inscricao.ProcessoInscricao.ValorPixBoleto ?? valorCartao;
 
                 var dadosPagamento = new PagSeguroModel.PagSeguro();
 
@@ -313,7 +405,7 @@ namespace CursoIgreja.Api.Controllers
                         reference_id = dadosCurso.Id.ToString(),
                         name = $"Inscrição para o curso: {dadosCurso.Titulo}",
                         quantity = 1,
-                        unit_amount = metodoPagto.Equals("CREDIT_CARD") ? Convert.ToInt32(inscricao.ProcessoInscricao.Valor.ToString("F").Replace(".","").Replace(",","")) : Convert.ToInt32(inscricao.ProcessoInscricao.ValorPixBoleto?.ToString("F").Replace(".","").Replace(",",""))                     
+                        unit_amount = metodoPagto.Equals("CREDIT_CARD") ? ConverterValorPagSeguro(valorCartao) : ConverterValorPagSeguro(valorPixBoleto)                     
                     }
                 };
 
@@ -806,6 +898,37 @@ namespace CursoIgreja.Api.Controllers
                 default:
                     return "Pagamento Reprocessado";
             }
+        }
+
+        private int ConverterValorPagSeguro(decimal valor)
+        {
+            return Convert.ToInt32(valor.ToString("F").Replace(".", "").Replace(",", ""));
+        }
+
+        private async Task<string> AtualizarValorInscricaoParaPagamento(InscricaoUsuario inscricao)
+        {
+            if (inscricao.Status != "AG")
+                return null;
+
+            var processoInscricao = inscricao.ProcessoInscricao ?? await _processoInscricaoRepository.ObterPorId(inscricao.ProcessoInscricaoId);
+
+            if (processoInscricao == null)
+                return "Processo de inscrição não localizado.";
+
+            var loteAtual = ObterLoteAtual(processoInscricao);
+
+            if (processoInscricao.Tipo == "P" && processoInscricao.Lotes != null && processoInscricao.Lotes.Any(x => x.Status == "A") && loteAtual == null)
+                return "Não há lote de pagamento ativo para esta inscrição.";
+
+            inscricao.ProcessoInscricaoLoteId = loteAtual?.Id;
+            inscricao.ValorInscricao = loteAtual?.Valor ?? processoInscricao.Valor;
+            inscricao.ValorPixBoletoInscricao = loteAtual?.ValorPixBoleto ?? processoInscricao.ValorPixBoleto;
+
+            await _inscricaoUsuarioRepository.SaveChangesAsync();
+
+            inscricao.ProcessoInscricao = processoInscricao;
+
+            return null;
         }
 
 

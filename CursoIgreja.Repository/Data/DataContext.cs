@@ -17,6 +17,7 @@ namespace CursoIgreja.Repository.Data
         public DbSet<Congregacao> Congregacao { get; set; }
         public DbSet<Curso> Cursos { get; set; }
         public DbSet<ProcessoInscricao> ProcessoInscricoes { get; set; }
+        public DbSet<ProcessoInscricaoLote> ProcessoInscricaoLotes { get; set; }
         public DbSet<InscricaoUsuario> InscricaoUsuario { get; set; }
         public DbSet<MeioPagamento> MeiosPagamentos { get; set; }
         public DbSet<ParametroSistema> ParametroSistema { get; set; }
