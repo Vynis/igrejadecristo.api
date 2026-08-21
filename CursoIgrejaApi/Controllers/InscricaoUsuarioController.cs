@@ -117,6 +117,7 @@ namespace CursoIgreja.Api.Controllers
                     return Response(validacao, false);
 
                 inscricaoUsuario.DataInscricao = DateTime.Now;
+                await PreencherValorInscricao(inscricaoUsuario);
                 inscricaoUsuario.Usuario = null;
                 inscricaoUsuario.ProcessoInscricao = null;
                 inscricaoUsuario.UsuarioId = usuarioId;
@@ -169,6 +170,8 @@ namespace CursoIgreja.Api.Controllers
                     UsuarioId = inscricaoManual.UsuarioId
                 };
 
+                await PreencherValorInscricao(inscricaoUsuario);
+
                 var response = await _inscricaoUsuarioRepository.Adicionar(inscricaoUsuario);
 
                 if (response)
@@ -204,6 +207,9 @@ namespace CursoIgreja.Api.Controllers
                 if (usuarioIncritos > processoInscricao.LimiteVagas)
                     return "Limite de vagas excedido.";
 
+            if (processoInscricao.Tipo == "P" && processoInscricao.Lotes != null && processoInscricao.Lotes.Any(x => x.Status == "A") && ObterLoteAtual(processoInscricao) == null)
+                return "Não há lote de pagamento ativo para esta inscrição.";
+
             var listaLiberacaoCurso = await _inscricaoLiberarCursoRepository.Buscar(x => x.ProcessoInscricoeId == processoInscricaoId);
 
             if (listaLiberacaoCurso.Any())
@@ -235,6 +241,26 @@ namespace CursoIgreja.Api.Controllers
             }
 
             return null;
+        }
+
+        private async Task PreencherValorInscricao(InscricaoUsuario inscricaoUsuario)
+        {
+            var processoInscricao = await _processoInscricaoRepository.ObterPorId(inscricaoUsuario.ProcessoInscricaoId);
+            var loteAtual = ObterLoteAtual(processoInscricao);
+
+            inscricaoUsuario.ProcessoInscricaoLoteId = loteAtual?.Id;
+            inscricaoUsuario.ValorInscricao = loteAtual?.Valor ?? processoInscricao?.Valor;
+            inscricaoUsuario.ValorPixBoletoInscricao = loteAtual?.ValorPixBoleto ?? processoInscricao?.ValorPixBoleto;
+        }
+
+        private ProcessoInscricaoLote ObterLoteAtual(ProcessoInscricao processoInscricao)
+        {
+            var agora = DateTime.Now;
+
+            return processoInscricao?.Lotes?
+                .Where(x => x.Status == "A" && agora >= x.DataInicial && agora <= x.DataFinal)
+                .OrderBy(x => x.DataInicial)
+                .FirstOrDefault();
         }
 
         [HttpPut("cancelar-incricao/{id}")]
@@ -352,6 +378,11 @@ namespace CursoIgreja.Api.Controllers
 
                 inscricao.TransacaoInscricoes = new List<TransacaoInscricao>();
 
+                var validacaoPagamento = await AtualizarValorInscricaoParaPagamento(inscricao);
+
+                if (!string.IsNullOrEmpty(validacaoPagamento))
+                    return Response(validacaoPagamento, false);
+
                 var dadosConfigPagamento = await _meioPagamentoRepository.Buscar(x => x.Status.Equals("A"));
 
                 var dadosCurso = await _cursoRepository.ObterPorId(inscricao.ProcessoInscricao.CursoId);
@@ -359,6 +390,9 @@ namespace CursoIgreja.Api.Controllers
                 var emailPagSeguro = dadosConfigPagamento.FirstOrDefault().Email;
                 var tokenPagSeguro = dadosConfigPagamento.FirstOrDefault().Token;
                 string urlCheckout = $"{urlApiPagueSeguro}/checkouts";
+
+                var valorCartao = inscricao.ValorInscricao ?? inscricao.ProcessoInscricao.Valor;
+                var valorPixBoleto = inscricao.ValorPixBoletoInscricao ?? inscricao.ProcessoInscricao.ValorPixBoleto ?? valorCartao;
 
                 var dadosPagamento = new PagSeguroModel.PagSeguro();
 
@@ -371,7 +405,7 @@ namespace CursoIgreja.Api.Controllers
                         reference_id = dadosCurso.Id.ToString(),
                         name = $"Inscrição para o curso: {dadosCurso.Titulo}",
                         quantity = 1,
-                        unit_amount = metodoPagto.Equals("CREDIT_CARD") ? Convert.ToInt32(inscricao.ProcessoInscricao.Valor.ToString("F").Replace(".","").Replace(",","")) : Convert.ToInt32(inscricao.ProcessoInscricao.ValorPixBoleto?.ToString("F").Replace(".","").Replace(",",""))                     
+                        unit_amount = metodoPagto.Equals("CREDIT_CARD") ? ConverterValorPagSeguro(valorCartao) : ConverterValorPagSeguro(valorPixBoleto)                     
                     }
                 };
 
@@ -864,6 +898,37 @@ namespace CursoIgreja.Api.Controllers
                 default:
                     return "Pagamento Reprocessado";
             }
+        }
+
+        private int ConverterValorPagSeguro(decimal valor)
+        {
+            return Convert.ToInt32(valor.ToString("F").Replace(".", "").Replace(",", ""));
+        }
+
+        private async Task<string> AtualizarValorInscricaoParaPagamento(InscricaoUsuario inscricao)
+        {
+            if (inscricao.Status != "AG")
+                return null;
+
+            var processoInscricao = inscricao.ProcessoInscricao ?? await _processoInscricaoRepository.ObterPorId(inscricao.ProcessoInscricaoId);
+
+            if (processoInscricao == null)
+                return "Processo de inscrição não localizado.";
+
+            var loteAtual = ObterLoteAtual(processoInscricao);
+
+            if (processoInscricao.Tipo == "P" && processoInscricao.Lotes != null && processoInscricao.Lotes.Any(x => x.Status == "A") && loteAtual == null)
+                return "Não há lote de pagamento ativo para esta inscrição.";
+
+            inscricao.ProcessoInscricaoLoteId = loteAtual?.Id;
+            inscricao.ValorInscricao = loteAtual?.Valor ?? processoInscricao.Valor;
+            inscricao.ValorPixBoletoInscricao = loteAtual?.ValorPixBoleto ?? processoInscricao.ValorPixBoleto;
+
+            await _inscricaoUsuarioRepository.SaveChangesAsync();
+
+            inscricao.ProcessoInscricao = processoInscricao;
+
+            return null;
         }
 
 
