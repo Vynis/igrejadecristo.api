@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -45,6 +46,9 @@ namespace CursoIgrejaApi
             //Conexao com base de dados
             services.AddDbContext<DataContext>(options =>
                      options.UseMySql(Configuration.GetConnectionString("DefaultConnection")).EnableSensitiveDataLogging());
+
+            //Serviço Resend Email
+            services.AddHttpClient<IResendEmailService, ResendEmailService>();
 
             CarregaInjecaoDependencia(services);
 
@@ -223,6 +227,7 @@ namespace CursoIgrejaApi
             services.AddScoped<IPequenoGrupoRelatorioPresencaRepository, PequenoGrupoRelatorioPresencaRepository>();
             services.AddScoped<INotificacaoLiderPgRepository, NotificacaoLiderPgRepository>();
             services.AddScoped<INotificacaoLiderPgLeituraRepository, NotificacaoLiderPgLeituraRepository>();
+            services.AddScoped<IRecuperacaoSenhaRepository, RecuperacaoSenhaRepository>();
 
         }
     }
