@@ -24,6 +24,8 @@ namespace CursoIgreja.Domain.Models
         public decimal  Valor { get; set; }
         public decimal? ValorPixBoleto { get; set; }
 
+        public List<ProcessoInscricaoLote> Lotes { get; set; }
+
         public DateTime? DataInicalPagto { get; set; }
         public DateTime? DataFinalPagto { get; set; }
 
@@ -63,6 +65,15 @@ namespace CursoIgreja.Domain.Models
 
         [NotMapped]
         public int QtdInscricoesCanceladas { get; set; }
+
+        [NotMapped]
+        public decimal? ValorAtual { get; set; }
+
+        [NotMapped]
+        public decimal? ValorPixBoletoAtual { get; set; }
+
+        [NotMapped]
+        public string LoteAtual { get; set; }
 
     }
 }

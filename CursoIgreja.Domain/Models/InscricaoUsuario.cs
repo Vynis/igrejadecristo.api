@@ -36,5 +36,10 @@ namespace CursoIgreja.Domain.Models
         public decimal? ValorBruto { get; set; }
         public int? QtdParcelas { get; set; }
 
+        public int? ProcessoInscricaoLoteId { get; set; }
+        public ProcessoInscricaoLote ProcessoInscricaoLote { get; set; }
+        public decimal? ValorInscricao { get; set; }
+        public decimal? ValorPixBoletoInscricao { get; set; }
+
     }
 }

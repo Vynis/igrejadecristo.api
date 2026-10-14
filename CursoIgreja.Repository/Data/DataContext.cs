@@ -1,4 +1,4 @@
-﻿using CursoIgreja.Domain.Models;
+using CursoIgreja.Domain.Models;
 using CursoIgreja.Domain.Models.Views;
 using CursoIgreja.Repository.Mapping;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +17,7 @@ namespace CursoIgreja.Repository.Data
         public DbSet<Congregacao> Congregacao { get; set; }
         public DbSet<Curso> Cursos { get; set; }
         public DbSet<ProcessoInscricao> ProcessoInscricoes { get; set; }
+        public DbSet<ProcessoInscricaoLote> ProcessoInscricaoLotes { get; set; }
         public DbSet<InscricaoUsuario> InscricaoUsuario { get; set; }
         public DbSet<MeioPagamento> MeiosPagamentos { get; set; }
         public DbSet<ParametroSistema> ParametroSistema { get; set; }
@@ -55,6 +56,7 @@ namespace CursoIgreja.Repository.Data
         public DbSet<PequenoGrupoRelatorioPresenca> PequenoGrupoRelatorioPresencas { get; set; }
         public DbSet<NotificacaoLiderPg> NotificacoesLiderPg { get; set; }
         public DbSet<NotificacaoLiderPgLeitura> NotificacoesLiderPgLeituras { get; set; }
+        public DbSet<RecuperacaoSenha> RecuperacaoSenhas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

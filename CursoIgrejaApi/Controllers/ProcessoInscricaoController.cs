@@ -20,14 +20,16 @@ namespace CursoIgreja.Api.Controllers
         private readonly IMapper _mapper;
         private readonly IInscricaoUsuarioRepository _inscricaoUsuarioRepository;
         private readonly IInscricaoLiberarCursoRepository _inscricaoLiberarCursoRepository;
+        private readonly IRepositoryBase<ProcessoInscricaoLote> _processoInscricaoLoteRepository;
 
-        public ProcessoInscricaoController(IProcessoInscricaoRepository processoInscricaoRepository, ICursoRepository cursoRepository, IMapper mapper, IInscricaoUsuarioRepository inscricaoUsuarioRepository, IInscricaoLiberarCursoRepository inscricaoLiberarCursoRepository)
+        public ProcessoInscricaoController(IProcessoInscricaoRepository processoInscricaoRepository, ICursoRepository cursoRepository, IMapper mapper, IInscricaoUsuarioRepository inscricaoUsuarioRepository, IInscricaoLiberarCursoRepository inscricaoLiberarCursoRepository, IRepositoryBase<ProcessoInscricaoLote> processoInscricaoLoteRepository)
         {
             _processoInscricaoRepository = processoInscricaoRepository;
             _cursoRepository = cursoRepository;
             _mapper = mapper;
             _inscricaoUsuarioRepository = inscricaoUsuarioRepository;
             _inscricaoLiberarCursoRepository = inscricaoLiberarCursoRepository;
+            _processoInscricaoLoteRepository = processoInscricaoLoteRepository;
         }
 
 
@@ -38,6 +40,7 @@ namespace CursoIgreja.Api.Controllers
             try
             {
                 var listaBd = await _processoInscricaoRepository.Buscar(x => x.Status.Equals("A") && DateTime.Now >= x.DataInicial && DateTime.Now <= x.DataFinal);
+                PreencherValoresAtuais(listaBd);
 
                 return Response(listaBd);
 
@@ -54,6 +57,7 @@ namespace CursoIgreja.Api.Controllers
             try
             {
                 var listaBd = await _processoInscricaoRepository.Buscar(x => x.Status.Equals("A") && x.DataFinal > DateTime.Now &&  x.DataFinal > DateTime.Now );
+                PreencherValoresAtuais(listaBd);
 
                 return Response(listaBd);
 
@@ -70,6 +74,7 @@ namespace CursoIgreja.Api.Controllers
             try
             {
                 var listaBd = await _processoInscricaoRepository.Buscar(x => x.Status.Equals("A") && DateTime.Now >= x.DataInicial && DateTime.Now <= x.DataFinal);
+                PreencherValoresAtuais(listaBd);
 
                 var listaUsuario = await _inscricaoUsuarioRepository.Buscar(x => x.UsuarioId == Convert.ToInt32(User.Identity.Name));
 
@@ -98,6 +103,7 @@ namespace CursoIgreja.Api.Controllers
             try
             {
                 var listaBd = await _processoInscricaoRepository.Buscar(x => x.Status.Equals("A"));
+                PreencherValoresAtuais(listaBd);
 
                 return Response(listaBd.OrderByDescending(x => x.Ano).ThenByDescending(x => x.Ciclo));
 
@@ -200,15 +206,24 @@ namespace CursoIgreja.Api.Controllers
 
             var idsSemCurso = processos.Where(x => x.Curso == null).Select(x => x.CursoId).Distinct().ToArray();
 
-            if (!idsSemCurso.Any())
-                return;
-
-            var cursos = await _cursoRepository.Buscar(x => idsSemCurso.Contains(x.Id));
-
-            foreach (var processo in processos.Where(x => x.Curso == null))
+            if (idsSemCurso.Any())
             {
-                processo.Curso = cursos.FirstOrDefault(x => x.Id == processo.CursoId);
+                var cursos = await _cursoRepository.Buscar(x => idsSemCurso.Contains(x.Id));
+
+                foreach (var processo in processos.Where(x => x.Curso == null))
+                {
+                    processo.Curso = cursos.FirstOrDefault(x => x.Id == processo.CursoId);
+                }
             }
+
+            var lotes = await _processoInscricaoLoteRepository.Buscar(x => idsProcessos.Contains(x.ProcessoInscricaoId));
+
+            foreach (var processo in processos)
+            {
+                processo.Lotes = lotes.Where(x => x.ProcessoInscricaoId == processo.Id).OrderBy(x => x.DataInicial).ToList();
+            }
+
+            PreencherValoresAtuais(processos);
         }
 
         [HttpGet("buscar-por-id/{id}")]
@@ -216,7 +231,10 @@ namespace CursoIgreja.Api.Controllers
         {
             try
             {
-                return Response(await _processoInscricaoRepository.ObterPorId(id));
+                var processo = await _processoInscricaoRepository.ObterPorId(id);
+                PreencherValoresAtuais(new[] { processo });
+
+                return Response(processo);
             }
             catch (Exception ex)
             {
@@ -304,6 +322,7 @@ namespace CursoIgreja.Api.Controllers
                     return Response("Dados inválidos para cadastro.", false);
 
                 processoInscricao.Curso = null;
+                NormalizarLotes(processoInscricao);
 
                 var response = await _processoInscricaoRepository.Adicionar(processoInscricao);
 
@@ -331,12 +350,32 @@ namespace CursoIgreja.Api.Controllers
                 if (!await ValidarDadosProcessoInscricao(processoInscricao))
                     return Response("Dados inválidos para atualização.", false);
 
+                var lotes = processoInscricao.Lotes ?? new List<ProcessoInscricaoLote>();
+
                 processoInscricao.Curso = null;
+                processoInscricao.Lotes = null;
 
                 var response = await _processoInscricaoRepository.Atualizar(processoInscricao);
 
                 if (!response)
                     return Response("Erro ao atualizar.", false);
+
+                var lotesAtuais = await _processoInscricaoLoteRepository.Buscar(x => x.ProcessoInscricaoId == processoInscricao.Id);
+
+                if (lotesAtuais.Any())
+                    await _processoInscricaoLoteRepository.RemoverRange(lotesAtuais);
+
+                foreach (var lote in lotes)
+                {
+                    lote.Id = 0;
+                    lote.ProcessoInscricaoId = processoInscricao.Id;
+                    lote.ProcessoInscricao = null;
+
+                    if (string.IsNullOrEmpty(lote.Status))
+                        lote.Status = "A";
+
+                    await _processoInscricaoLoteRepository.Adicionar(lote);
+                }
 
                 return Response("Atualização realizada com sucesso!");
             }
@@ -371,6 +410,9 @@ namespace CursoIgreja.Api.Controllers
             if (processoInscricao.DataInicioPresencial.HasValue && processoInscricao.DataFinalPresencial.HasValue && processoInscricao.DataInicioPresencial > processoInscricao.DataFinalPresencial)
                 return false;
 
+            if (!ValidarLotes(processoInscricao))
+                return false;
+
             if (string.IsNullOrEmpty(processoInscricao.Status))
                 processoInscricao.Status = "A";
 
@@ -383,6 +425,69 @@ namespace CursoIgreja.Api.Controllers
             processoInscricao.DiaSemanaCurso = NormalizarDiaSemana(processoInscricao.DiaSemanaCurso);
 
             return true;
+        }
+
+        private bool ValidarLotes(ProcessoInscricao processoInscricao)
+        {
+            var lotes = processoInscricao.Lotes?.Where(x => x.Status != "I").OrderBy(x => x.DataInicial).ToList() ?? new List<ProcessoInscricaoLote>();
+
+            foreach (var lote in lotes)
+            {
+                if (string.IsNullOrWhiteSpace(lote.Nome))
+                    return false;
+
+                if (lote.DataInicial > lote.DataFinal)
+                    return false;
+
+                if (lote.Valor < 0 || (lote.ValorPixBoleto.HasValue && lote.ValorPixBoleto.Value < 0))
+                    return false;
+            }
+
+            for (var i = 1; i < lotes.Count; i++)
+                if (lotes[i].DataInicial <= lotes[i - 1].DataFinal)
+                    return false;
+
+            return true;
+        }
+
+        private void NormalizarLotes(ProcessoInscricao processoInscricao)
+        {
+            if (processoInscricao.Lotes == null)
+                return;
+
+            foreach (var lote in processoInscricao.Lotes)
+            {
+                lote.Id = 0;
+                lote.ProcessoInscricao = null;
+
+                if (string.IsNullOrEmpty(lote.Status))
+                    lote.Status = "A";
+            }
+        }
+
+        private void PreencherValoresAtuais(IEnumerable<ProcessoInscricao> processos)
+        {
+            if (processos == null)
+                return;
+
+            foreach (var processo in processos.Where(x => x != null))
+            {
+                var loteAtual = ObterLoteAtual(processo);
+
+                processo.ValorAtual = loteAtual?.Valor ?? processo.Valor;
+                processo.ValorPixBoletoAtual = loteAtual?.ValorPixBoleto ?? processo.ValorPixBoleto;
+                processo.LoteAtual = loteAtual?.Nome;
+            }
+        }
+
+        private ProcessoInscricaoLote ObterLoteAtual(ProcessoInscricao processoInscricao)
+        {
+            var agora = DateTime.Now;
+
+            return processoInscricao?.Lotes?
+                .Where(x => x.Status == "A" && agora >= x.DataInicial && agora <= x.DataFinal)
+                .OrderBy(x => x.DataInicial)
+                .FirstOrDefault();
         }
 
         private string NormalizarDiaSemana(string diaSemana)

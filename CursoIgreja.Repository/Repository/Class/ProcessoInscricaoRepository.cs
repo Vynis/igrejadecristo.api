@@ -21,21 +21,21 @@ namespace CursoIgreja.Repository.Repository.Class
 
         public async override Task<ProcessoInscricao[]> Buscar(Expression<Func<ProcessoInscricao, bool>> predicado)
         {
-            IQueryable<ProcessoInscricao> query = _dataContext.ProcessoInscricoes.Where(predicado).Include(c => c.Curso);
+            IQueryable<ProcessoInscricao> query = _dataContext.ProcessoInscricoes.Where(predicado).Include(c => c.Curso).Include(c => c.Lotes);
 
             return await query.AsNoTracking().ToArrayAsync();
         }
 
         public async override Task<ProcessoInscricao[]> ObterTodos()
         {
-            IQueryable<ProcessoInscricao> query = _dataContext.ProcessoInscricoes.Include(c => c.Curso);
+            IQueryable<ProcessoInscricao> query = _dataContext.ProcessoInscricoes.Include(c => c.Curso).Include(c => c.Lotes);
 
             return await query.AsNoTracking().ToArrayAsync();
         }
 
         public async override Task<ProcessoInscricao> ObterPorId(int id)
         {
-            IQueryable<ProcessoInscricao> query = _dataContext.ProcessoInscricoes.Include(c => c.Curso);
+            IQueryable<ProcessoInscricao> query = _dataContext.ProcessoInscricoes.Include(c => c.Curso).Include(c => c.Lotes);
 
             return await query.Where(c => c.Id == id).AsNoTracking().FirstOrDefaultAsync();
         }
